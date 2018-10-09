@@ -1,0 +1,278 @@
+The GLAST LAT PSF Tool (PyPSF)
+
+$Id: PyPSF.txt,v 1.2 2008/09/07 17:09:19 elwinter Exp $
+
+Introduction
+
+This program allows the user to compute and compare point spread
+functions (PSFs) for the GLAST LAT instrument.
+
+Predicted PSFs are computed with the gtpsf tool. This tool requires a
+livetime cube file created by the gtltcube tool.
+
+Observed PSFs are computed with the gtobspsf tool. This tool requires
+a FT1-format event file created by any convenient method. The observed
+PSF computation is an approximation, using a constant detector
+effective area (default is 8000 cm^2). A constant background flux may
+also be applied (default is 0.0 ph/cm^2/s). The PSF is computed over
+all energies in the event file, and thus is an unweighted combination
+of the energy-dependent PSF for each photon energy.
+
+Example
+
+A user wishes to compare the observed PSF from a FT1 event file with
+the PSF predicted by gtpsf. She starts by launching the pypsf tool
+(the '$' is the bash shell prompt):
+
+...
+$ pypsf
+...
+
+The main program window appears.
+
+The first step is to compute the observed PSF. She fills in the fields
+in the upper half of the tool as follows:
+
+* Using the upper 'Browse' button, she specifies the path to the event
+  file of interest, in the 'Event file' field.
+
+* She enters the right ascension of the desired source point in the
+  'Source RA (deg)' field.
+
+* She enters the declination of the desired source point in the
+  'Source DEC (deg)' field.
+
+* She enters the maximum PSF angle in the 'Maximum angle (deg)' field.
+
+* She enters the number of equal-size angle bins to use in the 'Number
+  of angle bins' field.
+
+* She enters a positive value for the constant effective area of the
+  LAT detector in the 'Constant effective area (cm^2)' field.
+
+* She enters a non-negative value for the constant background flux in
+  the 'Constant background flux (ph/cm^2/s)' field.
+
+She then presses the 'Run gtobspsf' button to compute the observed
+PSF. When the button indicates the command is finished (it will remain
+pressed until the command is finished, then pop back up), she can look
+at the computed PSF by pressing the upper 'Plot PSF' button. A plot
+window appears which shows a plot of the normalized PSF computed using
+the specified parameters. She may overlay new plots by changing the
+parameter values, pressing the 'Run gtobspsf' button, and pressing the
+'Plot PSF' button again.
+
+The next step is to compute the predicted PSF. She fills in the fields
+in the lower half of the tool as follows:
+
+* Using the lower 'Browse' button, she specifies the path to the
+  livetime cube file of interest, in the 'Livetime cube file' field.
+
+* She enters the right ascension of the desired source point in the
+  'Source RA (deg)' field.
+
+* She enters the declination of the desired source point in the
+  'Source DEC (deg)' field.
+
+* She enters the maximum PSF angle in the 'Maximum angle (deg)' field.
+
+* She enters the number of equal-size angle bins to use in the 'Number
+  of angle bins' field.
+
+She then presses the 'Run gtpsf' button to compute the predicted
+PSF. When the button indicates the command is finished (it will remain
+pressed until the command is finished, then pop back up), she can look
+at the computed PSF by pressing the upper 'Plot PSF' button. A plot
+window appears which shows a plot of the normalized PSF computed using
+the specified parameters. She may overlay new plots by changing the
+parameter values, pressing the 'Run gtpsf' button, and pressing the
+'Plot PSF' button again.
+
+After experimenting with the parameters for both tools, she decides to
+compare the results. She just presses the 'Compare' button at the
+bottom of the window. The chi-squared probability value is computed
+and displayed next to the button. This value is the probability that
+the computed and observed distributions are not the same, i.e. a low
+value represents a good match. A plot window will also appear, which
+compares the computed and observed PSFs, and also shows the residuals.
+
+Reference
+
+N.B.: Context-sensitive help is available for all on-screen
+controls. Moving the mouse over any screen element will invoke a popup
+balloon contining a capsule summary of the function of that screen
+element.
+
+Launching the program
+
+N.B. All instructions below assume your HEADAS environment has been
+properly set up.
+
+The program is launched from the command line using the following
+command:
+
+...
+pypsf
+...
+
+Screen controls
+---------------
+
+GUI components
+--------------
+
+The upper half of the window contains the controls for the gtobspsf
+tool. The lower half of the window contains the controls for the gtpsf
+tool.
+
+gtobspsf controls
+-----------------
+
+'Event file' field - Enter the path to the FT1-format event
+file. Alternatively, use the adjacent 'Browse' button to summon a
+dialog which allows you to navigate to the desired event file.
+
+'Source RA (deg)' field - Enter the right ascension of the desired
+source in floating-point degrees.
+
+'Source DEC (deg)' field - Enter the declination of the desired source
+in floating-point degrees.
+
+'Maximum angle (deg)' field - Enter the maximum angle to use in the
+PSF in floating-point degrees. A value of 4.0 is a reasonable default.
+
+'Number of angle bins' field - Enter the number of equal-size angle
+bins to use in the PSF, as an integer. A value of 20 is a reasonable
+default.
+
+'Constant effective area (cm^2)' field - Enter a floating-point value
+to use as the constant effective area of the LAT. A value of 8000 is a
+reasonable starting value, and roughly represents the maximum
+effective area of the LAT in cm^2.
+
+'Constant background flux (ph/cm^2/s)' field - Enter a floating-point
+value for the background flux. A value of 0 is reasonable to start
+with. Increasing the value will tend to sharpen the PSF. A value on
+the order 10^-4 is typical, but this value can vary widely.
+
+'Run gtobspsf' button - Pressing this button invokes the gtobspsf tool
+with the specified parameters. This also causes the current set of
+parameters to be saved in the parfile for gtobspsf, so they will
+appear the next time the pypsf tool is run.
+
+'Plot PSF' button - Plot the observed PSF in a separate window. The
+PSF is normalized to unit area under the plot. Each time the 'Plot
+PSF' button is pressed, the current PSF will be plotted along with any
+previous PSFs.
+
+There are 7 control buttons at the bottom of the plot window. The
+functions of the buttons are as follows:
+
+Button 1 (home icon) - Return your view to the original plot view.
+
+Button 2 (left arrow icon) - Move to the previous plot view.
+
+Button 3 (right arrow icon) - Move to the next plot view.
+
+Button 4 (crossed arrows icon) - Turn on pan and zoom mode. Click the
+left mouse button and drag the mouse to pan the plot around in the
+window. Click the right mouse button and drag the mouse to zoom the
+plot in at the current location.
+
+Button 5 (magnifying glass icon) - Click the left mouse button and
+drag out a rectangle to zoom the plot to that region.
+
+Button 6 (square with outward arrows icon) - Summon a dialog allowing
+the user to adjust the plot parameters.
+
+Button 7 (disk icon) - Save the current plot window as an image. The
+following file formats are supported:
+
+Portable Network Graphics (.png)
+Enhanced Metafile (.emf)
+Encapsulated Postscript (.eps)
+Portable Document Format (.pdf)
+Postscript (.ps)
+Raw RBGA bitmap (.raw,.rgba)
+Scalable Vector Graphocs (.svg,.svgz)
+
+gtpsf controls
+--------------
+
+'Livetime cube file' field - Enter the path to the gtltcube-generated
+livetime cube file. Alternatively, use the adjacent 'Browse' button to
+summon a dialog which allows you to navigate to the desired livetime
+cube file.
+
+'Source RA (deg)' field - Enter the right ascension of the desired
+source in floating-point degrees.
+
+'Source DEC (deg)' field - Enter the declination of the desired source
+in floating-point degrees.
+
+'Maximum angle (deg)' field - Enter the maximum angle to use in the
+PSF in floating-point degrees. A value of 4.0 is a reasonable default.
+
+'Number of angle bins' field - Enter the number of equal-size angle
+bins to use in the PSF, as an integer. A value of 20 is a reasonable
+default.
+
+'Run gtpsf' button - Pressing this button invokes the gtpsf tool with
+the specified parameters. This also causes the current set of
+parameters to be saved in the parfile for gtpsf, so they will appear
+the next time the pypsf tool is run.
+
+'Plot PSF' button - Plot the predicted PSF in a separate window. The
+PSF is normalized to unit area under the plot. Each time the 'Plot
+PSF' button is pressed, the current PSF will be plotted along with any
+previous PSFs. This plot window contains the same control buttons as
+described above for the gtobspsf 'Plot PSF' button.
+
+The Compare button
+------------------
+
+The 'Compare' button at the bottom of the window compares the current
+observed and predicted PSF. The chi-squared probability value is
+computed and displayed next to the button. This value is the
+probability that the computed and observed distributions are not the
+same, i.e. a low value represents a good match. A plot window will
+also appear, which compares the computed and observed PSFs, and also
+shows the residuals. The comparison plot window contains the same set
+of plot control buttons as described above for the other plot windows.
+
+Menu commands
+-------------
+
+File menu
+---------
+
+New - Not currently implemented.
+
+Open... - Not currently implemented.
+
+Close - Not currently implemented.
+
+Save - Not currently implemented.
+
+Save As... - Not currently implemented.
+
+Exit - Exit from the program.
+
+Edit menu
+---------
+
+Cut - Not currently implemented.
+
+Copy - Not currently implemented.
+
+Paste - Not currently implemented.
+
+Undo - Not currently implemented.
+
+Help menu
+---------
+
+Help - Display this help document.
+
+About - Display a dialog which provides summary information on the
+program.

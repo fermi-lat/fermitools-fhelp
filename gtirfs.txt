@@ -1,0 +1,115 @@
+
+NAME 
+
+       gtirfs - Give the list of possible irfs
+
+
+
+USAGE
+ 
+       gtirfs
+
+
+DESCRIPTION
+       
+        List all possible irfs in the STDOUT.
+
+
+PARAMETERS
+
+     (chatter = 2)
+          This parameter fixes the output verbosity: no screen output
+          (0), nominal screen output (2), maximum verbosity (4). The
+          default value is 2. 
+  	  	 
+     (clobber = yes)        
+          Overwrite existing output files. This is a hidden parameter. The 
+          default value is: "yes".
+
+     (debug = no)              
+          Activate debugging mode. This is a hidden parameter. The
+          default value is "no". When debug is "no", all exceptions
+          that are not caught and handled by individual tool-specific
+          code are caught by a top-level exception handler that
+          displays information about the exception and then
+          exits. When debug is "yes", such exceptions are not caught
+          by the top level code. Instead the tool produces a
+          segmentation violation, which is more useful for
+          debugging. When debugging mode is enabled, the tool produces
+          more verbose output describing any errors or exceptions that
+          are encountered.
+
+     (gui = no) 
+          Graphical user Interface (GUI) mode activated. This is a hidden 
+          parameter. The default value is "no".
+
+     (mode = ql)               
+          Mode of automatic parameters. This is a hidden parameter. The 
+          default value is "ql". 
+
+
+
+EXAMPLES
+ 
+Gtirfs handles parameters following the FTOOLs model: They 
+can be passed by answering a prompt or as a list in a command 
+line. 
+
+To be prompted for gtirfs options type in the command line:
+ 
+>gtirfs
+ 
+For gtirfs all parameters are hidden. If you  want to change one of 
+the "hidden" parameter you should specify the 
+values in the command line or modify its mode by editing the parameter 
+file. For example you may type: 
+ 
+>gtirfs chatter=4  
+ 
+ 
+An example of how to run the tool is given below: 
+
+> gtirfs
+ 
+P5_v13_0_diff ( = P5_v13_0_diff::FRONT + P5_v13_0_diff::BACK )
+P5_v13_0_diff::BACK
+P5_v13_0_diff::FRONT
+P5_v13_0_source ( = P5_v13_0_source::FRONT + P5_v13_0_source::BACK )
+P5_v13_0_source::BACK
+P5_v13_0_source::FRONT
+P5_v13_0_trans ( = P5_v13_0_trans::FRONT + P5_v13_0_trans::BACK )
+P5_v13_0_trans::BACK
+P5_v13_0_trans::FRONT
+P6_V1_DIFFUSE ( = P6_V1_DIFFUSE::FRONT + P6_V1_DIFFUSE::BACK )
+P6_V1_DIFFUSE::BACK
+P6_V1_DIFFUSE::FRONT
+P6_V1_SOURCE ( = P6_V1_SOURCE::FRONT + P6_V1_SOURCE::BACK )
+P6_V1_SOURCE::BACK
+P6_V1_SOURCE::FRONT
+P6_V1_TRANSIENT ( = P6_V1_TRANSIENT::FRONT + P6_V1_TRANSIENT::BACK )
+P6_V1_TRANSIENT::BACK
+P6_V1_TRANSIENT::FRONT
+PASS4 ( = PASS4::FRONT + PASS4::BACK )
+PASS4::BACK
+PASS4::FRONT
+PASS4_v2 ( = PASS4_v2::FRONT + PASS4_v2::BACK )
+PASS4_v2::BACK
+PASS4_v2::FRONT
+PASS5_v0 ( = PASS5_v0::FRONT + PASS5_v0::BACK )
+PASS5_v0::BACK
+PASS5_v0::FRONT
+PASS5_v0_DIFFUSE ( = PASS5_v0_DIFFUSE::FRONT + PASS5_v0_DIFFUSE::BACK )
+PASS5_v0_DIFFUSE::BACK
+PASS5_v0_DIFFUSE::FRONT
+PASS5_v0_TRANSIENT ( = PASS5_v0_TRANSIENT::FRONT + PASS5_v0_TRANSIENT::BACK )
+PASS5_v0_TRANSIENT::BACK
+PASS5_v0_TRANSIENT::FRONT
+
+
+
+LIST OF BUGS
+
+
+SEE ALSO 
+
+

@@ -1,0 +1,199 @@
+NAME
+     gtsuntemp - Generates the average intensity skymaps as a function
+	of energy for the Sun or the Moon. The output fits file can be
+	used in likelihood analysis in a similar fashion as the
+	diffuse emission model.
+
+USAGE
+	gtsuntemp expsun avgexp sunprof cmap outfile nxpix nypix binsz coordsys 
+	xref yref axisrot proj ebinalg emin emax enumbins bincalc
+
+DESCRIPTION
+
+    This tool takes the standard exposure map used for normal analysis, the 
+    exposure map from gthpexpsun and a profile of the intensity of the Moon or 
+    the Sun as a function of angle from the Sun or the Moon and energy. The only
+    profile format currently supported is a FITS file with extensions named: 
+    ANGLES, ENERGIES, SST_PROFILE. The parameters controlling the binning of the
+    final template are identical to those of gtexpcube2. The tool works by first
+    calculating the expected photons sr-1 MeV-1 from the moving source using the
+    angular binned exposure map and the input profile. This is then turned into 
+    average intensity by dividing with the normal exposure map. If the energy 
+    binning of the solar profile does not match that of the output map a 
+    power-law interpolation is used.
+
+
+NOTES
+
+    The template of the moving source must be generated using the same events 
+    file and livetime cube used in the analysis. Different cuts generate 
+    different templates.
+
+    At present, models used for the solar and lunar emission are fixed for any
+    period of solar activity.
+
+    The energy binning for gtexpcube2, gtexphpsun, and gtsuntemp must match or 
+    the tools will fail with an error message saying that some energy bins are 
+    not found.
+
+PARAMETERS
+	
+     expsun [filename] 
+     Exposure map from gtexphpsun binned in healpix and solar angles.
+
+     avgexp [filename] 
+     Binned xposure map from gtexpcube2.
+
+     sunprof [filename] 
+     Profile of the intensity of the moving source for the moon and the sun 
+     (e.g., lunar_profile_v2r0.fits and solar_profile_v2r0.fits).  The tool 
+     expects fits files with the following tables: ANGLES listing the angles 
+     used in the profile (center values), ENERGIES listing the energies in the 
+     profile, and SST_PROFILE listing the intensity as a function of energy and
+     distance from the source.  The SST_PROFILE should be a vector table where 
+     each row gives the spectrum of the emission for a given distance.
+
+     cmap [filename]
+     Counts map file from gtbin, for which gtsuntemp should match the 
+     coordinate projection and gridding.  Select "none" if the map geometry is 
+     specified from parameters (nxpix, nypix, xref, yref, enumbins, etc). 
+
+     outfile [filename] 
+     Average intensity skymaps.
+
+     nxpix [integer]
+     Size of the X (i.e., horizontal) axis in pixels. If proj is "CAR", "AIT", 
+     or "ZEA", the value "1" is used for full sky.
+
+     nypix [integer]
+     Size of the Y (i.e., vertical) axis in pixels. If proj is "CAR", "AIT", or 
+     "ZEA", the value "1" is used for full sky.	 
+
+     binsz [double]
+     The number of degrees per pixel at the center of the image.
+
+     coordsys [boolean]
+     Coordinate system. If you choose CEL you will be prompted for ra and dec 
+     (J2000), if you choose GAL you will be prompted for l and b coordinates. 
+
+     xref [double]
+     The horizontal position of the center of the image, either RA in celestial 
+     coordinates or l in galactic coordinates. 	
+
+     yref [double]
+     The vertical position of the center of the image, either DEC in celestial c
+     oordinates or b in galactic coordinates. 
+
+     axisrot [double]
+     The rotation angle desired for the image. 
+
+     proj [string]
+     The allowed values are: AIT, ZEA, ARC, CAR, GLS, MER, NCP, SIN, STG, TAN 
+     or any other three letter identifier recognized by wcslib (see Calabretta 
+     & Greisen 2002, A&A, 395, 1077 for definitions of the projections).  Must 
+     be AIT, ZEA, or CAR for auto full sky. 
+
+     (ebinalg = LOG) [string]
+     Indicates how the energy bins will be specified. Legal values are FILE 
+     (bin boundaries will be read from a bin definition file) or LOG 
+     (logarithmically uniform bins).   
+
+     emin [double]
+     The lowest energy of the first interval for linearly or logarithmically 
+     uniform bins. Only used if ebinalg is LOG.
+
+     emax [double]
+     The highest energy of the last interval for linearly or logarithmically 
+     uniform bins. Only used if ebinalg is LOG.
+
+     enumbins [integer]
+     The number of bins for logarithmically uniform bins. Only used if ebinalg 
+     is LOG. 
+
+     ebinfile [filename]
+     The name of the energy bin definition file. Only used if ebinalg is FILE.
+
+     (bincalc = EDGE) [string]
+     Allows to choose how energy layers are computed from the count map (cmap 
+     parameter) energy bounds, e.g., bincalc="CENTER" will force the tool to 
+     compute the exposures using the energy at the geometric mean of the energy 
+     bounds for each energy bin. The default is bincalc="EDGE" and should be 
+     what is used in the binned Likelihood analysis. It must be the same as the
+     one used in the gtexpcube2
+
+     irfs [string]
+     Instrument response functions. The instrument response (PSF, effective
+     area, energy resolution) is currently a function of energy, inclination 
+     angle (the angle between the source and the LAT normal) and photon 
+     category. The default value is the lastest available IRF. 
+
+    (chatter = 2) [integer] 
+    This parameter fixes the output verbosity: no screen output (0),
+    nominal screen output (2), maximum verbosity (4). 
+    
+    (clobber = yes) [boolean]        
+    If true, an existing file of the same name will be overwritten.
+    
+    (debug = no) [boolean]         
+    Activate debugging mode. When debug is "no", all exceptions that are not
+    caught and handled by individual tool-specific code are caught by
+    a top-level exception handler that displays information about the
+    exception and then exits. When debug is "yes", such exceptions are
+    not caught by the top level code. Instead the tool produces a
+    segmentation violation, which is more useful for debugging. When
+    debugging mode is enabled, the tool produces more verbose output
+    describing any errors or exceptions that are encountered.
+    
+    (mode = ql) [string]
+    Mode of automatic parameters: "h" for batch, "ql" for interactive.
+
+
+EXAMPLE
+
+    Parameters are passed to gtltcubesun following the FTOOLs model. They can
+    be passed by answering from a prompt, as a list in a command line, or by
+    editing the parameter file. This allows gtltcubesun to be called from a
+    script.
+ 
+    To be prompted for gtltcubesun simply type in the command line: 
+
+> gtsuntemp
+Exposure binned in healpix and solar angles[] : expMapSun.fits
+Binned exposure[] : expMap.fits
+Fits file containing solar intensity profile[solar_profile_v2r0.fits, lunar_profile_v2r0.fits]: solar_profile_v2r0.fits
+Counts map file[none] :
+Output file name[] : TemplateMap.fits
+Size of the X axis in pixels[] : 720
+Size of the Y axis in pixels[] : 360
+Image scale (in degrees/pixel)[] : 0.5
+Coordinate system (CEL - celestial, GAL -galactic) (CEL|GAL) [] : GAL
+First coordinate of image center in degrees (RA or galactic l)[] : 0
+Second coordinate of image center in degrees (DEC or galactic b)[] : 0
+Rotation angle of image axis, in degrees[] : 0
+Projection method e.g. AIT|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN[] : CAR 
+Start energy (MeV) of first bin[] : 100
+Stop energy (MeV) of last bin[] : 10000
+Number of logarithmically-spaced energy bins[] : 10
+Computing binned TemplateMap....................!
+
+    Note: Once the output exposure FITS file has been generated, it can be 
+    viewed with a FITS viewer such as ds9 or fv. It contains a data structure 
+    with layers corresponding to the number of bins specified. 
+
+    The previous example can also be run in the command line as follows:
+
+> gtsuntemp avgexp=expMapSun.fits expsun=expMap.fits sunprof=solar_profile_v2r0.fits \
+  cmap=none nxpix=720 nypix=360 binsz=0.5 coordsys=GAL xref=0 yref=0 axisrot=0 proj=CAR \
+  emin=100 emax=100000 enumbins=10 outfile=TemplateMap.fits
+
+
+LIST OF BUGS
+
+
+SEE ALSO 
+
+            gtltcubesun
+
+            gtexphpsun
+
+            gtltsumsun

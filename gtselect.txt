@@ -1,0 +1,288 @@
+NAME
+
+    gtselect - Performs selection cuts on event data files.
+
+
+USAGE
+    
+    gtselect infile outfile ra dec rad tmin tmax emin emax zmin zmax
+             evclass evtype 
+
+
+DESCRIPTION
+
+    gtselect creates a filtered FITS file by selecting rows from an input
+    event data file based on user-specified cuts that are applied to
+    each row of the input file. This application enables detailed
+    selections to be made on Fermi photon and event data obtained from the 
+    FSSC data server or simulated data generated using gtobssim
+    (see gtobssim help). The most common selections are these
+    involving time range (minimum and maximum time) and energy range
+    (minimum and maximum energy), and event class.  For each cut that is applied Data
+    Subspace (DSS) keywords are written to the EVENTS header of the
+    output FITS file that describe the selection.  This information is
+    used by the likelihood tools and gtrspgen for computing
+    exposure-related information. 
+    
+    
+NOTES
+
+    - The selection cone center (right ascension and declination)
+      must match exactly that which was used in the original selection
+      from the data server.
+
+    - both evclass and evtype are "hidden" parameters, i.e. they are
+      not propmted for but must be supplied on the command line
+   
+    - evclass, recommended selection for standard analysis = 128 (source)
+
+      The event classification system in Pass 8 is similar to that employed 
+      in Pass 7 (i.e. a bitmask classification system for various event classes), 
+      Additionally, through the use of the new data filter EVENT_TYPE (see below), 
+      further subselection of events are allowed in data preparation. Each bit 
+      in the EVENT_CLASS variable corresponds to a 
+      particular set of the Instrument Response Functions (IRFs). The more 
+      used event classes (Transient, Source, Clean and UltraCleanVeto ) are 
+      still hierarchical, i.e., Transient > Source > Clean > UltraCleanVeto.
+      Most analyses will use either the Source or Clean event samples.
+      **NOTE** once you perform selection on event class or event type, you 
+      cannot revert to a more general selection at a later stage of your analysis.
+
+      Table of standard (non-transient) event classes (for a complete
+      list see the FSSC Website or Cicerone)
+
+      -----------------------------------------
+      |Class (Pass 8)|  evclass			   
+      |----------------------------------------
+      |Source        |  128	 |	  
+      |Clean	     |  256	 |	  
+      |UltraCleanVeto|  1024	 |	  
+      -----------------------------------------
+  
+    - evtype, recommended selection for standard analysis = 3 (front +
+      back events)
+        
+	The Pass 8 processing implements a new scheme for partitioning
+        the data within an event class with "event type" selections.
+        The event type selections partition the data within a class
+        into independent subsets. Currently, evtype has the ability to
+        select on 2 different types of event conversions (front/back),
+        4 different PSF classes, and 4 different energy reconstruction
+        classes. You may select a sub-sample within a given event type
+        (e.g. PSF2), but those events can only be used with other
+        events of the same type. If you select one of the "all events"
+        values (3 = front+back, 60 = PSF0+PSF1+PSF2+PSF3, 960 =
+        EDISP0+EDISP1+EDISP2+EDISP3). be aware that different IRFs
+        will be applied. If you do not select an "all events" value,
+        then the tool may apply results only to a subset of the
+        events.
+
+ 
+PARAMETERS
+
+    infile [filename]
+         Input event FITS file. This is the file containing the event data. 
+       
+    outfile [filename]
+         Output event FITS file with events that satisfy the selections
+         performed with gtselect.
+       
+    ra [double]
+         Right ascension of acceptance cone (J2000) in decimal degrees.
+         If the parameter is set to INDEF the right ascension will be read from the 
+         header of the input file. 
+       
+    dec [double]
+         Declination of acceptance cone (J2000) in decimal degrees.
+         If the parameter is set to INDEF the declination will be read from the 
+         header of the input file. 
+   
+    rad [double]
+         Radius of acceptance cone (decimal degrees). A value of 180 (default)
+         indicates that no acceptance cone cut will be applied.  If the
+         parameter is set to INDEF the radius will be read from the header
+         of the input file.
+              
+    tmin [double]
+         Event arrival time lower limit in mission elapsed time (MET)
+         seconds. All the events in the output FITS file will have "event
+         arrival time" larger than this value. The reference time used for MET
+         is midnight (0h:0m:0s) on January 1, 2001, in Coordinated Universal
+         Time (UTC). The FERMI convention is that MJDREF=51910
+         (UTC)=51910.0007428703703703703 (TT); the fractional part of MJDREF in
+         the TT system compensates for the use of midnight in the UTC system as
+         the reference time.  MJDREF is divided into two keywords:
+         MJDREFI=51910, the integer part; and MJDREFF=7.428703703703703D-4, the
+         fractional part. If the parameter is set to INDEF (default) tmin will be
+         read from the header of the input file. For conversions
+         between MET and other commonly used time conventions we refer
+         the user to the HEASARC online tool
+         http://heasarc.gsfc.nasa.gov/cgi-bin/Tools/xTime/xTime.pl.
+
+    tmax [double]
+         Event arrival time upper limit in mission elapsed time (MET)
+         seconds. All the events in the output FITS file will have
+         "event arrival time" smaller than this value. A value of zero
+         in this context means that no upper limit will be applied. If
+         the parameter is set to INDEF (default) the tmax will be read
+         from the header of the input file.
+       
+    emin [double]
+         Minimum event energy in MeV. All the events in the output FITS file
+         will have "event energy" larger than this value. Default is "100" MeV.
+       
+    emax [double]
+         Maximum event energy in MeV. All the events in the output
+         FITS file will have "event energy" smaller than this
+         value. Default is "300000" MeV.
+      
+    zmax [double]
+         Maximum apparent zenith angle (degrees). It ranges from 0 to 180 (default).
+    
+    (evclsmin) [integer] 
+         This parameter is ignored for data reprocessed after Aug. 1, 2011 
+         (Pass 7 series).
+         Mininum event class ID to include. Each set of IRFs will define a set 
+         of event classes numbered 0 to n, where n+1 is the number of event 
+         classes. These numbers will be ordered such that the more inclusive 
+         classes are numbered lowest. Default is "INDEF".
+   
+     (evclsmax) [integer]
+         This parameter is ignored for data reprocessed after Aug. 1, 2011 
+         (Pass 7 series).
+         Maximum event class ID to include. Default is "INDEF".
+
+     (evclass) [integer] 
+         Event class selection for pass 8. The default is 128 (source
+         class).
+  
+     (evtype) [integer]
+         The event type selection for Pass 8 data. The event type is a
+         subselection of the event class. Users can select on range of
+         events based on conversion type (front/back), angular
+         reconstruction quality (PSF values), and energy
+         reconstruction quality (EDISP values). The default value is
+         INDEF, which will not apply a subselection.
+
+    (convtype) [integer]
+         Conversion type. This parameter screens events based on which
+         portion of the instrument the incident gamma-ray pair conversion
+         event occurred. 0=Front, 1=Back, -1=both (defalt value). Refer 
+         to the Cicerone manual for details
+         (http://fermi.gsfc.nasa.gov/ssc/data/analysis/documentation/Cicerone). 
+   
+    (phasemin) [double]
+         Minimum pulsar phase to include. This cut is only applied if
+         the PULSE_PHASE column has been added to the FT1 file by the
+         gtpphase tool.  Default is "0".
+   
+    (phasemax) [double]
+         Maximum pulsar phase to include. Default is "1".
+
+    (evtable) [string]
+         Event data extension. Default is "EVENTS".
+
+    (chatter) [integer]  
+         This parameter fixes the output verbosity: no screen output (0),
+         nominal screen output (2), maximum verbosity (4). Default is "2".
+
+    (clobber) [boolean]
+         If true, an existing file of the same name will be overwritten. 
+         Default is "yes".
+    
+    (debug) [boolean]
+         Activate debugging mode. Default is "no". When debug is "no", all 
+         exceptions that are not caught and
+         handled by individual tool-specific code are caught by a top-level
+         exception handler that displays information about the exception and
+         then exits. When debug is "yes", such exceptions are not caught by the
+         top level code. Instead the tool produces a segmentation violation,
+         which is more useful for debugging. When debugging mode is enabled,
+         the tool produces more verbose output describing any errors or
+         exceptions that are encountered.
+    
+    (gui) [boolean]
+         Graphical User Interface (GUI) mode is activated if set to "yes".
+         Default is "no".
+    
+    (mode) [string]
+         Mode of automatic parameters: "h" for batch, "ql" for interactive. 
+         Default is "ql".
+
+        
+EXAMPLES
+
+    The way that the parameters are passed follows the FTOOLs model. They
+    could be passed by answering from a prompt, as a list in a command
+    line, or by modifying the parameter file. The command line option
+    facilitates calling gtselect from a script.
+ 
+    To prompt for gtselect type in the command line: 
+
+> gtselect 
+
+    This will prompt for parameter values. Not all parameter are prompted: 
+    some of them are "hidden". To change one of the "hidden" parameter, 
+    the user should specify the values in the command line or modify its 
+    mode by editing the parameter file. 
+    For example, to prevent overwrite the existing output file, the following 
+    command line as to be typed:
+ 
+> gtselect clobber=no  
+ 
+    This is an example of how to run the tool: 
+    In this case the quasar 3C279 (centered on Ra=193.98, Dec=-5.82) was
+    simulated using gtobssim (type "fhelp gtobssim" for further explanation), 
+    although the indentical procedure could be followed for actual data. 
+    Note that a radius of 40 degrees was specified in the input simulation.
+    The energy for the simulated events ranges between 20 MeV and 200000 MeV. 
+    Using gtselect it possible to select the events with energy larger than 
+    100 MeV and within a radius of 20 degrees centered on Ra=193.98, 
+    Dec=-5.82 and a time range between 220838400 and 225590400 MET seconds:
+
+> gtselect evclass=2
+Input FT1 file[] 3C279_events_0000.fits
+Output FT1 file[] 3c279_filtered.fits
+RA for new search center (degrees) (0:360) [INDEF] 193.98
+Dec for new search center (degrees) (-90:90) [INDEF] -5.82
+radius of new search region (degrees) (0:180) [INDEF] 20
+start time (MET in s) (0:) [INDEF] 220838400
+end time (MET in s) (0:) [INDEF] 225590400
+lower energy limit (MeV) (0:) [100] 100
+upper energy limit (MeV) (0:) [300000] 100000
+maximum zenith angle value (degrees) (0:180) [180] 105
+Done.
+
+    The last example could be also run from the command line as:
+
+> gtselect infile=3C279_events_0000.fits outfile=3c279_filtered.fits \
+  ra=193.98 dec=-5.82 rad=20 evclass=128 evtype=3 \
+  tmin=220838400 tmax=225590400  emin=100 emax=100000 zmax=100
+
+    You can also use the defaults in the input file header by using
+    the INDEF syntax
+
+> gtselect infile=3C279_events_0000.fits outfile=3c279_filtered.fits \
+  ra=INDEF dec=INDEF rad=INDEF evclass=128 evtype=INDEF tmin=INDEF \
+  tmax=INDEF emin=100 emax=100000 zmax=100
+
+
+KNOWN BUGS
+
+    Use the INDEF values for right ascension, declination, and radius
+    are handled peculiarly. If any one of the parameters are set to
+    INDEF it is treated if all are set to INDEF. 
+    
+
+SEE ALSO
+
+     fselect
+     
+     gtobssim
+     
+     gtpphase
+     
+     gtrspgen
+     
+
+   

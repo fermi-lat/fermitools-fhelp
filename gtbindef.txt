@@ -1,0 +1,134 @@
+NAME
+    gtbindef Generate an energy or time bin definition (FITS) file 
+    to be used with gtbin.
+
+
+USAGE
+    gtbindef bintype binfile outfile energyunits
+
+
+DESCRIPTION
+
+gtbindef creates the input (FITS) file needed by the gtbin tool (see
+the gtbin help) in order to generate customized binning in energy or
+time of Fermi event data. This tool complements the gtbin tool and
+is used in combination with it. A user may, for example, wish to create
+a light curve with non-uniform binning, in the case of flaring or
+transient sources.
+  
+
+PARAMETERS
+
+bintype [string: E|T]
+Type of bins the user wants to generate; energy bins (E) or time 
+bins (T). 
+
+binfile [file]
+File containing the ASCII bin definitions. This file must be created
+by the user. The range (minimum and maximum values) of each bin may be
+specified, one per line. The code considers the numbers in this file
+to be floating point. See the example below.
+      
+Outfile [file]
+Name of the output FITS file containing the bin definitions. This file
+will be an input to gtbin (see the gtbin help).
+  
+energyunits = MeV [string: eV|keV|MeV|GeV] 
+Units of input energy bins: GeV, MeV, keV, or eV.
+Note that the time units are always in seconds. For Fermi data files
+this should be in MET. 
+	 	 
+(chatter)  
+This parameter fixes the output verbosity: no screen output (0),
+nominal screen output (2), maximum verbosity (4). The default value is
+2.
+
+(clobber = yes)        
+Overwrite or do not overwrite existing output files. The default value is: "yes".
+
+(debug = no)   
+Activate debugging mode. The default value is "no". When debug is
+"no", all exceptions that are not caught and handled by individual
+tool-specific code are caught by a top-level exception handler that
+displays information about the exception and then exits. When debug is
+"yes", such exceptions are not caught by the top level code. Instead
+the tool produces a segmentation violation, which is more useful for
+debugging. When debugging mode is enabled, the tool produces more
+verbose output describing any errors or exceptions that are
+encountered.
+
+(gui = no) 
+Graphical user Interface (GUI) mode activated if "yes" is
+specified. The default value is "no".
+
+(mode = ql)
+Mode of automatic parameters. The default value is "ql". 
+
+        
+EXAMPLES
+
+The way that the parameters are passed follows the FTOOLs model: They
+can be passed interactively by answering a prompt, as a list in a
+command line, or by editing the parameter file.
+
+To be prompted for gtbindef simply type in the command line: 
+
+>gtbindef
+
+This will prompt for parameter values. Beware that not all parameters
+are prompted: some of the parameter are "hidden".  in order to change
+one of the "hidden" parameter, specify its value in the command
+line. For example to prevent overwriting an existing output file, type
+in the command line:
+ 
+>gtbindef clobber=no  
+ 
+
+An example of how to use gtbindef to create a FITS 
+file to be used subsequently by gtbin to generate 
+specific energy binning is given below.
+
+The first step is to create the ASCII file that is input in
+gtbindef. That ASCII file should have the initial and final energies
+for each bin. For example, suppose the input ASCII file is named
+energy_bins_gtbindef, and it contains:
+30  50
+50 100
+100 300
+300 1000
+1000 3000
+3000 10000
+10000 200000
+
+(The code considers these numbers as reals).
+
+Then gtbindef could be run as follows:
+
+> gtbindef
+This is gtbindef version ScienceTools-v9r33p0-fssc-20140317
+Type of bins, E -- energy or T -- time [E] : 
+File containing the ascii bin definitions [] : energy_bins_gtbindef
+Output file name [] : energy_bins_gtbindef.fits
+Units of input energy bins: MeV, GeV, keV, or eV [MeV] : 
+
+In this case an energy binning was selected (bintype = E). The name of
+the ASCII file is "energy_bins_gtbindef", and it is passed in the
+binfile parameter (binfile = energy_bins_gtbindef). The output FITS
+file is energy_bins_gtbindef.fits (outfile =
+energy_bins_gtbindef.fits), and the units used are MeV (energyunits =
+MeV).
+
+After running gtbindef, run gtbin to create the spectra using the
+selected bins. See the gtbin documentation for more information.
+
+
+KNOWN BUGS
+
+
+SEE ALSO
+
+    * gtbin 
+    
+
+   
+

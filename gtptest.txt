@@ -1,0 +1,105 @@
+NAME
+
+    gtptest - Applies statistical tests to a series of pulse phase
+              values stored in given event file(s).
+
+USAGE
+
+    gtptest evfile outfile numphase numharm maxharm
+
+DESCRIPTION
+
+    This tool applies all the statistical tests available with
+    gtpsearch application to a series of pulse phase values stored in
+    given event files.  The tool supports several test statistics
+    available, including Chi-squared (X2), Z-squared-n ( Z2N), H, and
+    Rayleigh (Z2N with N == 1).
+
+PARAMETERS
+
+evfile [file name]
+    Name of input event file, FT1 format or equivalent.
+
+outfile [file name]
+    Name of output FITS file that contains a search result.  If
+    outfile is NONE, no FITS output will be created.
+
+numphase = 10 [integer]
+    Number of phase bins in each trial for the chi-squared test. 
+    This parameter only has effect if algorithm is CHI2.
+
+numharm = 10 [integer]
+    Number of harmonics in each trial for the Z2n/Rayleigh test. 
+    This parameter only has effect if algorithm is Z2N.  For the
+    Rayleigh test, set algorithm to Z2N, and set numharm to 1.
+
+maxharm = 10 [integer]
+    Maximum number of harmonics in each trial for the H test.  This
+    parameter only has effect if algorithm is H.
+
+(evtable = EVENTS) [string]
+    Name of the FITS table containing the event data.
+
+(pphasefield = PULSE_PHASE) [string]
+    Name of the output column to contain the assigned pulse phase.
+
+(plot = yes) [bool]
+    If plot is yes, the result will be displayed in a separate plot
+    window, as well as the numerical results will be output in a text
+    screen.  If plot is no, only the text output will be displayed,
+    and no plot window will be displayed.
+
+(title = DEFAULT) [string]
+    Title for the graph. By default a title indicating the type of
+    test and other pertinent information will be displayed.
+
+(chatter = 2) [integer, min=0, max=4]
+    This parameter fixes the output verbosity: no screen output (0),
+    nominal screen output (2), maximum verbosity (4).
+
+(clobber = yes) [boolean]
+    Overwrite or do not overwrite existing output files.
+
+(debug = no) [boolean]
+    Activate debugging mode. When debug is "no", all exceptions that
+    are not caught and handled by individual tool-specific code are
+    caught by a top-level exception handler that displays information
+    about the exception and then exits. When debug is "yes", such
+    exceptions are not caught by the top level code. Instead the tool
+    produces a segmentation violation, which is more useful for
+    debugging. When debugging mode is enabled, the tool produces more
+    verbose output describing any errors or exceptions that are
+    encountered.
+
+(gui = no) [boolean]
+    Graphical user Interface (GUI) mode activated if "yes" is
+    specified.
+
+(mode = ql) [string]
+    Mode of automatic parameters.
+
+EXAMPLES
+
+    The example below shows how to perform periodicity tests on an
+    event file that has been processed by gtpphase application, where
+    a pulse phase has already been assigned to each photon and is
+    stored in a default FITS column (PULSE_PHASE column).
+
+        > gtptest evfile=fakepulsar_event_phase.fits \
+            outfile=gtptest_example_1.fits numphase=10 numharm=10 maxharm=10
+
+    This command produces an output message that describes the types
+    and the parameters of the periodicity tests that are performed,
+    and explains the test results.  A plot will also be produced,
+    which shows a folded-light curve used in the chi-squared test.
+
+KNOWN BUGS
+
+    When running gtpsearch multiple times using the GUI, plot windows
+    from previous runs reappear after they are closed manually. Thus,
+    there is no way to permanently close plot windows without exiting
+    the GUI.
+
+SEE ALSO
+
+    gtpsearch, gtpspec

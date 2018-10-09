@@ -1,0 +1,143 @@
+NAME
+
+    gtephem - Computes and displays a pulsar's frequency ephemeris for
+              a given pulsar and instant of time.
+
+USAGE
+    
+    gtephem psrdbfile psrname reftime timeformat timesys
+
+DESCRIPTION
+
+    This tool searches for pulsar ephemerides in a pulsar ephemerides
+    database in Fermi (formerly GLAST) D4 FITS format, computes a
+    pulse frequency and its time derivatives at the given time using
+    the best ephemeris available, and displays the result.  If the
+    given pulsar is in a binary system and its orbital parameters are
+    found fin the pulsar ephemerides database, it accounts for binary
+    modulation to correct time delays due to the pulsar's orbital
+    motion.
+
+PARAMETERS
+
+psrdbfile [file name]
+    Name of pulsar ephemerides database file, in Fermi (formerly
+    GLAST) D4 FITS format (See PULSAR EPHEMERIS DATABASE
+    FILE). Multiple files may be combined by listing them in a text
+    file, one per line, and supplying the list file name preceded by
+    an @ sign. If psrdbfile is NONE (case-insensitive), no ephemeris
+    is loaded from a file.
+
+psrname = ANY [string]
+    Name of the pulsar, used to select only ephemerides valid for a
+    particular pulsar.
+
+reftime = 0. [string]
+    Reference time for which an ephemeris will be selected, if any is
+    available in the input file. The interpretation of this number is
+    determined by the timeformat and timesys parameters.
+
+timeformat = MJD [enumerated string (MJD|FERMI|GLAST)]
+    String describing the representation used for the reference time.
+
+timesys = TDB [enumerated string (TAI|TDB|TT|UTC)]
+    String describing the time system used for the reference time.
+
+(strict = no) [bool]
+    If strict is yes, only spin ephemerides whose stated range of
+    validity contains the epoch will be selected. If strict is no,
+    the ephemeris closest to the epoch will be selected, regardless
+    of its stated range of validity.
+
+(solareph = JPL DE405) [enumerated string (JPL DE200|JPL DE405)]
+    Solar system ephemeris used to select the ephemerides. This only
+    has effect when the matchsolareph parameter is either ALL or
+    PSRDB.
+
+(matchsolareph = ALL) [enumerated string (NONE|PSRDB|ALL)]
+    String that controls whether to use the name of the solar system
+    ephemeris given by the solareph parameter to select ephemerides
+    in the pulsar database. If matchsolareph is ALL or PSRDB, the
+    string given by the solareph parameter is used to select the
+    ephemerides. If matchsolareph is NONE, no selection will be
+    performed.
+
+(leapsecfile = DEFAULT) [file name]
+    Name of the file containing the name of the leap second table, in
+    OGIP-compliant leap second table format. If leapsecfile is the
+    string DEFAULT, the default leap-second file (leapsec.fits),
+    which is distributed with the extFiles package, will be used.
+
+(reportephstatus = yes) [bool]
+    If reportephstatus is yes, the application will examine the input
+    pulsar ephemeris database, and report findings which may affect
+    the requested ephemeris computations. If reportephstatus is no,
+    it will not report any ephemeris status.
+
+(chatter = 2) [integer, min=0, max=4]
+    This parameter fixes the output verbosity: no screen output (0),
+    nominal screen output (2), maximum verbosity (4).
+
+(clobber = yes) [boolean]
+    Overwrite or do not overwrite existing output files.
+
+(debug = no) [boolean]
+    Activate debugging mode. When debug is "no", all exceptions that
+    are not caught and handled by individual tool-specific code are
+    caught by a top-level exception handler that displays information
+    about the exception and then exits. When debug is "yes", such
+    exceptions are not caught by the top level code. Instead the tool
+    produces a segmentation violation, which is more useful for
+    debugging. When debugging mode is enabled, the tool produces more
+    verbose output describing any errors or exceptions that are
+    encountered.
+
+(gui = no) [boolean]
+    Graphical user Interface (GUI) mode activated if "yes" is
+    specified.
+
+(mode = ql) [string]
+    Mode of automatic parameters.
+
+EXAMPLES
+
+    To find an ephemeris for a particular pulsar at a particular time,
+    gtephem can be invoked as follows.
+
+       > gtephem psrdbfile=bogus_pulsardb.fits psrname="PSR J9999+9999" \
+           reftime=54870.3 timeformat=MJD timesys=TDB
+
+    If gtephem is invoked with chatter parameter set to 4 or larger,
+    it will display spin and orbital ephemerides that is used to
+    compute an extrapolated spin ephemeris at a particular moment in
+    time, together with an extrapolated ephemeris at the given
+    time.
+
+        > gtephem psrdbfile=bogus_pulsardb.fits psrname="PSR J1834-0010" \
+           reftime=54369.3 timeformat=MJD timesys=TDB chatter=4
+
+PULSAR EPHEMERIS DATABASE FILE
+
+    A pulsar ephemeris database file is a FITS file or a text file in
+    a Fermi-specific format, and contains a set of pulsar ephemerides
+    to be used in a temporal analysis of Fermi data. When so
+    specified, the pulsar analysis tools in Fermi Science Tools load
+    pulsar ephemerides from pulsar ephemeris database files, and use
+    them in their tasks.  A pulsar ephemeris database file can be
+    created, filtered, and combined by the gtpulsardb tool. Also,
+    pulsar ephemerides for the Fermi LAT pulsars and timing models
+    associated with various Fermi publications are available at the
+    following web page.
+
+    http://fermi.gsfc.nasa.gov/ssc/data/access/lat/ephems/
+
+KNOWN BUGS
+
+      Some differences have been noted between output on Windows and
+      output on Linux. The values are not qualitatively far off, but
+      it is not yet known whether the differences are significant, or
+      indicate a problem in the code.
+
+SEE ALSO
+
+    gtpulsardb

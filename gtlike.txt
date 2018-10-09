@@ -1,0 +1,507 @@
+NAME
+
+    gtlike - Performs unbinned or binned likelihood analysis of LAT data.
+
+
+USAGE
+    
+    gtlike irfs expcube srcmdl statistic optimizer evfile scfile expmap
+           cmap bexpmap
+
+
+DESCRIPTION
+
+
+OVERVIEW
+
+    The gtlike tool performs unbinned and binned likelihood analysis
+    of the LAT data.
+    
+    The application of the likelihood method to photon-counting
+    experiments was described by Cash 1979 (Cash W. 1979, ApJ 228,
+    939). Maximum likelihood method was applied in the analysis of
+    EGRET data as parameter estimation (Mattox J. R. et al 1996, ApJ
+    461, 396), and it will be applied in the analysis of FERMI data as
+    well.
+    
+    The likelihood statistic L is the probability of obtaining
+    observational data given an input model. In our case, the input
+    model is the distribution of gamma-ray sources on the sky, and
+    includes their intensity and spectra. We use this statistic to
+    find the best fit model parameters. These parameters include the
+    description of a source's spectrum, its position, and intensity.
+    
+    During its lifetime FERMI LAT will observe hundreds of millions of
+    photons (counts), but for most analyses we will be interested in 
+    typically a subset of only a few hundred or a few thousand. The data 
+    will be too sparse in many cases to allow the use of CHI2 as test 
+    statistic. In that case, a full Poisson likelihood optimization is 
+    needed for model parameter estimation.
+    
+    For a small number of counts the unbinned likelihood can be
+    calculated rapidly, but as the number of counts increases the time
+    to calculate the likelihood becomes prohibitive, and the binned
+    likelihood must be used.
+    
+    For an overview of the underlying mathematical and statistical framework
+    of the likelihood analysis of the FERMI data it is highly recommended
+    that one read the Cicerone Manual
+    http://fermi.gsfc.nasa.gov/ssc/data/analysis/documentation/Cicerone/Cicerone_Likelihood/.
+    
+    In the next section the definition of the source region and region of
+    interest is given. The explanation of how to generate the source
+    model for the likelihood analysis is then described. The
+    different optimizers to produce the fitting in the likelihood
+    analysis are given in the section "MODEL FITTING". Finally the individual 
+    steps of how to perform an unbinned and binned
+    likelihood analysis is described.
+    
+    
+SOURCE REGION AND REGION OF INTEREST (ROI)
+
+    Due to the large LAT point spread function at low energies (e.g.,
+    68% of the counts will be within 3.5 degrees at 100 MeV, see
+    http://www-glast.slac.stanford.edu/software/IS/glast_lat_performance.htm
+    for a review of LAT performance), to analyze a single source the
+    counts within a region around the source have to be included. We
+    call that region the "region of interest" (ROI). The ROI is
+    selected from the original event file using the gtselect tool (see
+    the gtselect documentation). The ROI should be several times the
+    characteristic PSF size in order to satisfy the restrictions of
+    the Likelihood package.  Nearby sources will contribute counts to
+    that region, so they have to be model as well. The region that
+    includes that sources is called "Source Region". All these sources
+    will be in the source model file that has to be input in gtlike
+    (see the "THE SOURCE MODEL" section in this help).  The "Source
+    Region" is centered on the ROI, with a radius that is larger than
+    the ROI radius by several PSF length scales.  For example, when
+    fitting a single point source, a ROI with a radius of 10 degrees
+    and a Source Region radius of 20 degrees would be appropriate.
+    Note that since the size of the LAT PSF goes roughly as
+    (PSF_100MeV) x (E/100)^{-0.8} (with E in MeV), if the user is
+    considering only higher energy photons, e.g., > 1 GeV, smaller ROI
+    and Source Region radii of just a few degrees may be used.
+    
+    
+THE SOURCE MODEL:
+        
+    The gtlike tool reads the source model from an XML file. A
+    GUI-tool, called "modeleditor", can be used to create this file. With that
+    tool the user can create the xml source files without any knowledge of
+    xml. 
+     
+    For information about the type of source that the user is able to
+    create, the spatial models and the spectral functions, we
+    recommend reading the modeleditor and/or the Cicerone Manual:
+    http://fermi.gsfc.nasa.gov/ssc/data/analysis/documentation/Cicerone/Cicerone_Likelihood/Model_Selection.html
+        
+
+MODEL FITTING:
+
+    In the FERMI science tools there are five optimization algorithms to
+    maximize the log likelihood function: DRMNGB, DRMNFB, NEWMINUIT, MINUIT and
+    LBFGS.
+    
+    The optimizers determine the best-fit spectral parameters, but not the
+    location; the source coordinates are fixed. However, a tool is provided that
+    performs a grid-search mapping out the maximum likelihood value over a grid of
+    locations: gtfindsrc (see the gtfindsrc help for details, also see gttsmap).
+    
+    DRMNGB finds the local minima of a continuously differentiable
+    function subject to simple upper and lower bound constrains. It
+    uses a variant of Newton's method with a quasi-Newton Hessian
+    updating method, and model/trust-region technique to aid
+    convergence from poor starting values. The original code obtained
+    from Netlib (http://www.netlib.org) is in Fortran, but it was
+    converted in C++. It has some converge problems.
+    
+    DRMNFB uses many of the same subroutines as DRMNGB, but handles
+    the derivative information differently and seems not to suffer
+    from some of the convergence problems encountered with DRMNGB.
+    
+    MINUIT is a well-know package from CERN. Originally in Fortran, it
+    was also translated to C++. In the FERMI Science Tools, only a few
+    of MINUIT's capabilities are used. For example all variables are
+    treated as bounded. No user interaction is allowed and only MIGRAD
+    algorithm is implemented. For more information about MINUIT see
+    http://wwwasdoc.web.cern.ch/wwwasdoc/minuit/minmain.html.
+    
+    NEWMINUIT is also an interface to the C++ version of MINUIT. This
+    class implements an Optimizer by using MINUIT.  It uses only a few
+    of MINUIT's features: The MIGRAD and HESSE algorithms.  All
+    variables are treated as bounded.  No user interaction is
+    allowed. It has no limits on the number of free parameters.
+    
+    LBFGS was original obtained from Netlib
+    (http://www.netlib.org). The original code is in Fortran, but as
+    the others, it was translated to C++. The ``L'' in the name means
+    ``limited memory''. That means that the full approximate Hessian
+    is not available.
+    
+    Generally speaking, the fastest way to find the parameters
+    estimation in the likelihood FERMI Science tool is to use DRMNGB
+    (or DRMNFB) approach to find initial values and then use MINUIT
+    (or NEWMINUIT) to find more accurate results.
+
+
+PROCEDURE FOR LIKELIHOOD ANALYSIS:
+
+    There are two possible ways to perform a likelihood analysis in
+    the LAT data: Unbinned and binned likelihood. A summary of each
+    case is given in the following subsections, a further explanation
+    can be obtained from the analysis threads:
+    http://fermi.gsfc.nasa.gov/ssc/data/analysis/scitools/
+
+
+1) UNBINNED LIKELIHOOD ANALYSIS:
+
+    The event data file and corresponding spacecraft data file available 
+    through the FSSC website are needed to perform a likelihood analysis.
+    For simulated data the spacecraft data file could be produced by 
+    gtorbsim (see the gtorbsim help), but for real data can be obtained 
+    from the FSSC website. The user can also perform a likelihood analysis for
+    simulated LAT data (see the gtobssim help, to know how to generate 
+    simulated data).
+    
+    To perform an unbinned likelihood several FERMI Science Tools have to
+    be run before running gtlike. The following paragraphs describe the
+    required steps:
+    
+    a) The first step is to select the ROI (see the "SOURCE REGION AND
+    REGION OF INTEREST" section in this document) using gtselect (see the
+    gtselect help). The user may also need to use gtmktime to select the Good
+    Time Intervals (GTI) that define a time range when the data can be
+    considered valid (see the gtmktime help for details).
+    
+    b) Creation of the exposure map needed for gtlike in the unbinned
+    likelihood analysis.
+    
+    This requires two steps: 
+
+    i) First create the live-time cube using gtltcube:
+    See the gtltcube help text for more information about how to run this tool.
+
+    ii) Create the exposure map: The exposure map needed for unbinned
+    likelihood analysis can be generated using the gtexpmap tool (see the
+    gtexpmap help).  The event file input to gtexpmap is in general a
+    filtered event file derived from an original event file obtained from the FSSC
+    website. This original event file should be filtered using the gtselect 
+    tool (see the gtselect help).
+
+    c) Run gtdiffrsp:
+    See the gtdiffrsp help for more information about how to run this tool.
+    
+    d) Run gtlike.
+    gtlike will provide the TS value for each source in the source model
+    as well as the parameter values obtained in the fitting process for
+    the source specified in the xml model file (see "THE SOURCE MODEL" section
+    above). The source model file should be provided as input in
+    gtlike. Other inputs are the exposure cube and the exposure created in
+    previous steps. The user is also allowed to select the different optimizers
+   (see the "MODEL FITTING" section in this help).
+        
+    
+2) BINNED LIKELIHOOD ANALYSIS
+
+    To perform a binned likelihood analysis the event data file and the
+    spacecraft data file are needed. Both files can be obtained from the
+    FSSC website.  There are several steps to perform a binned likelihood
+    analysis; a full description is provided in the analysis threads.
+    A summary is given below:
+    
+    a) Create a 3D Counts Map: The first step in a binned likelihood
+    analysis is to create a count map of the ROI (see "SOURCE REGION AND
+    REGION OF INTEREST" section in this document). In the binned analysis
+    the ROI is defined as the boundaries of the count map, so it is not
+    appropriate to apply acceptance cone cuts (see the gtselect help) on
+    the event data.
+    
+    b) Identify Candidate Sources and Define the Model: The second step
+    for the binned likelihood analysis is to create the source model
+    file. See "THE SOURCE MODEL" section in this document.
+    
+    c) Compute Livetimes: To speed up the exposure calculations performed
+    by Likelihood, it is helpful to pre-compute the live-time as a
+    function of sky position and off-axis angle. The gtltcube application
+    does this for the whole sky (see the gtltcube help for details).
+    
+    d) Compute Source Maps: These are model count maps including each source,
+    i.e., scaled by exposure and convolved with the effective PSF. The
+    gtsrcmaps application performs this task (see the gtsrcmaps help).
+    
+    e) Run gtlike: The "binned" option of the "statistic" parameter has to
+    be selected. In addition, the optimizer has to be chosen (see the "MODEL
+    FITTING" section in this help), etc. gtlike will provide as output
+    the TS and the predicted number of counts, and the spectral parameters
+    (the spectral index, for example, in the case of a power law
+    spectra) for each source reported in the source model file.
+    
+    f) Simulate based on user's model: For comparison to the counts map data, 
+    the user can create a model map of the region based on the fit parameters. 
+    This map is essentially an infinite-statistics counts map of the ROI based
+    on the user model fit. The gtmodel application reads in the fitted 
+    model, applies the proper scaling to the source maps, and adds them together
+    to get the final map (see the gtmodel help).
+    
+
+PARAMETERS
+
+    irfs [string]
+	 Instrument response functions. The instrument response (PSF, effective
+	 area, energy resolution) is currently a function of energy,
+	 inclination angle (the angle between the source and the LAT normal)
+	 and photon category. Since the LAT will usually survey the sky, a
+	 source will be observed at different inclination angles. Each count
+	 will therefore be characterized by a different instrument response
+	 function (IRF). The default value is “CALDB”. 
+    
+    expcube [filename]
+	 FITS file containing livetime as a function of sky position and
+	 off-axis angle. This file can be generated by gtltcube or obtained
+	 from the FSSC website. See the gtltcube help for further explanation.
+	 Default is "none".
+    
+    srcmdl [filename]
+         XML file containing the source model definitions. The source model can
+	 be generated by the "ModelEditor" utility or by following source model
+	 templates. See "THE SOURCE MODEL" section in this help, and the
+	 "ModelEditor" help for further explanation (after typing "modeleditor" at
+	 the prompt, a gui appears. Select "HELP" in the main menu).
+    
+    (sfile) [filename]
+         Output XML file that contain the fitted model. Default is "none".
+    
+    (check_fit) [boolean]
+         If "yes" this parameter allows printing warnings regarding the fit
+         process. Default is "yes".
+      
+    (results) [string]
+         Output file for fit results. Default is "results.dat". 
+
+    (specfile) [string]
+         Output file for counts spectra. Default is "counts_spectra.fits". 
+ 
+    statistic [string]
+         Form of log-likelihood to use. The options are "BINNED" or "UNBINNED"
+         likelihood analysis. See the "PROCEDURE FOR LIKELIHOOD ANALYSIS"
+         section in this help for details. Default is "UNBINNED".
+     
+    optimizer [string]
+         Optimizer package to use. The options are: "DRMNFB", "NEWMINUIT", 
+	 "MINUIT", "DRMNGB", and "LBFGS". See "MODEL FITTING" section in this 
+	 document for details. Default is "MINUIT".
+      
+    (ftol) [double]
+         Relative fit tolerance. Default is "1e-2".
+
+    (toltype) [string]            
+         Fit tolerance convergence type: "ABS"=absolute or "REL"=relative. Default is "ABS". 
+
+    (tsmin) [boolean]
+         Whether to refit in the null hypothesis in evaluating the test
+         statistic (TS) values for each point source. Default is "no".
+     
+    (save) [boolean]
+         Write ancillary output files: counts_spectra.fits and
+         results.dat. These files have a summary of the results of the
+         likelihood analysis with the TS values, the predicted number of counts
+         and the values of the fit for the free parameters in the source model
+         file.  Default is "yes". The results are also printed in the Standard 
+         OUTPUT if chatter parameter is set to 2 (the default value).
+    
+    (refit) [boolean]
+         Whether to prompt to refit, re-reading the source model XML file
+         before refitting.  Default is "no".
+     
+    evfile [filename]
+         This is the input file containing the event data. If
+         several events files have to be input, an ASCII file with the complete
+         list of them should be entered here with an "@" sign before the
+         name. For example, if the name of that ASCII file is "events", then is
+         parameter should be entered in this way: evfile=@events. Default is "none".
+     
+    (evtable) [string]
+         Event table extension name. Default is "EVENTS".
+    
+    scfile [filename]
+         Spacecraft data file containing information such as the spacecraft
+         pointing as a function of time. This file could be generated by
+         gtorbsim for simulated observations (see gtorbsim help for further
+         explanation) or more commonly it can be obtained from the FSSC
+         website. Default is "none".
+     
+    (sctable) [string]
+         Spacecraft data extension. Default is "SC_DATA".
+      
+    expmap [filename]
+         Exposure map file used in an unbinned likelihood analysis and created
+         by gtexpmap. See gtexpmap help for further explanation. Default is "none".
+     
+    (plot) [boolean]
+         This parameter allows to plot (or nor) the counts spectrum for data
+         and model. Default is "no".
+      
+    cmap [filename]
+         Input counts map file, optionally including the convolved maps of the
+         sources in the model as image extensions. Only for binned likelihood
+         analysis. Default is "none".
+      
+    bexpmap [filename]
+         Exposure map for binned analysis. The geometry of the map must match
+         the geometry of the counts map. Only for binned likelihood analysis. 
+         Default is "no".
+     
+    (phased_expmap) [string]
+         Specify the exposure map filename if you want phase-selected exposure 
+	 corrections. Default is "none".
+
+    (psfcorr) [boolean]
+         Apply psf corrections for point source maps. Default is "yes".
+    
+    (chatter) [integer]  
+         This parameter fixes the output verbosity: no screen output (0),
+         nominal screen output (2), maximum verbosity (4). Default is "2".
+
+    (clobber) [boolean]
+         If true, an existing file of the same name will be overwritten. 
+         Default is "yes".
+    
+    (debug) [boolean]
+         Activate debugging mode. Default is "no". When debug is "no", all 
+         exceptions that are not caught and
+         handled by individual tool-specific code are caught by a top-level
+         exception handler that displays information about the exception and
+         then exits. When debug is "yes", such exceptions are not caught by the
+         top level code. Instead the tool produces a segmentation violation,
+         which is more useful for debugging. When debugging mode is enabled,
+         the tool produces more verbose output describing any errors or
+         exceptions that are encountered.
+    
+    (gui) [boolean]
+         Graphical User Interface (GUI) mode is activated if set to "yes".
+         Default is "no".
+    
+    (mode) [string]
+         Mode of automatic parameters: "h" for batch, "ql" for interactive. 
+         Default is "ql".
+
+       
+EXAMPLES
+
+    Parameters are passed following the FTOOLs model: They could be passed
+    answering from a prompt, as a list in a command line, or by editing
+    the parameter file.
+     
+    To run gtlike simply type in the command line: 
+
+> gtlike
+ 
+    The parameter values have to be provided. Not all
+    parameter are prompted: some of them are "hidden". To
+    change one of the "hidden" parameter, the user should specify the values in
+    the command line or modify its mode by editing the parameter 
+    file. For example, to chance the relative fit
+    tolerance, the following command line has to be typed:
+ 
+> gtlike ftol=1e-3
+
+    gtlike has specific parameters for each of the statistics selected,
+    for example, the parameter cmap only work if the user chose the binned
+    likelihood.
+ 
+Example 1: unbinned likelihood analysis:
+
+    An example of how to run the tool for unbinned likelihood analysis is
+    given below:
+
+> gtlike
+Statistic to use (BINNED|UNBINNED) [UNBINNED] :
+Spacecraft file[none] spacecraft_data_file.fits
+Event file[none] _3C279_3C273_back_filtered.fits
+Unbinned exposure map[none] expMap.fits
+Exposure hypercube file[none] ltcube.fits
+Source model file[] src_model.xml
+Response functions to use[CALDB]
+Optimizer (DRMNFB|NEWMINUIT|MINUIT|DRMNGB|LBFGS) [MINUIT]
+
+
+    In the example above the event file is called
+    "_3C279_3C273_back_filtered.fits", it is a file that contains simulated
+    data for 3C279, 3C273 and the Galactic and Extragalactic
+    background. It was generated using gtobssim, a tool to generate
+    LAT simulated data (see the gtobssim help). The source model with the
+    spectral and spatial information includes the sources 3C279, 3C273 and the 
+    Galactic and Extragalactic background and it is called "src_model.xml". 
+    The exposure cube was produced with gtltcube and the exposure map
+    with gtexpcube2. MINUIT was chosen as optimizer.  The Spacecraft 
+    data file selected was "spacecraft_data_file.fits"
+    and the response function "CALDB" was chosen.  The results of the
+    likelihood analysis are printed in the Standard Output and also saved
+    in the ASCII file "results.dat" and in the FITS file "counts_spectra.fits"
+    with information of the number of counts and fluxes for each energy bin 
+    and for each source.
+
+
+    That last example could be also run in the command line as follows:
+
+gtlike irfs=CALDB expcube=expCube.fits \
+srcmdl=src_model.xml statistic=UNBINNED optimizer=MINUIT \
+evfile=_3C279_3C273_back_filtered.fits scfile=spacecraft_data_file.fits \
+expmap=expMap.fits
+
+Example 2: Binned likelihood analysis
+
+    An example of how to run the tool for a binned likelihood analysis is
+    given below:
+
+> gtlike
+Statistic to use (BINNED|UNBINNED [UNBINNED] BINNED 
+Counts map file[none] srcMaps.fits
+Binned exposure map[none] binned_exposure.fits
+Exposure hypercube file[none] ltcube.fits
+Source model file[] src_model.xml
+Response functions to use[CALDB]
+Optimizer (DRMNFB|NEWMINUIT|MINUIT|DRMNGB|LBFGS) [MINUIT]
+
+    In the example the livetime cube was previously generated by gtltcube
+    (see the gtltcube help), the source maps was generated by gtsrcmaps
+    (see the gtsrcmaps documentation), MINUIT was chosen as optimizer and
+    the response function CALDB was selected.
+
+    That last example could be also run in the command line as follows:
+
+> gtlike irfs=CALDB expcube=expCube.fits \
+ srcmdl=src_model.xml statistic=BINNED optimizer=MINUIT \
+ cmap=srcMaps.fits bexpmap=binned_exposure.fits
+
+
+KNOWN BUGS
+
+This tool is known to use an inordinate amount of physical memory. 
+If the amount required for a specific analysis exceeds the 
+available system memory, this tool will crash. 
+
+
+SEE ALSO
+
+     gtexpmap
+
+     gtdiffrsp
+
+     gtfindsrc 
+
+     gtltcube
+
+     gtmktime
+
+     gtmodel
+
+     gtorbsim
+
+     gtobssim
+
+     gtselect
+
+     gtsrcmaps
+
+     gttsmap

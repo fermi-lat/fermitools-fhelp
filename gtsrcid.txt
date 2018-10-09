@@ -1,0 +1,391 @@
+NAME  
+        gtsrcid - Creates a counterpart candidate catalog by 
+        correlating the objects from a list of detected sources
+        with the objects of an existing source catalog, such as
+        the 3EG catalog.
+
+USAGE
+
+        gtsrcid srcCatName srcCatPrefix cptCatName cptCatPrefix
+        outCatName probMethod probThres maxNumCpt
+
+
+DESCRIPTION
+
+The gtsrcid tool is an application that finds counterparts for a 
+list of detected sources using a catalog of potential counterparts.
+
+The source catalog as well as the counterpart catalog should be 
+either in FITS or TSV (tab-separated values) format. The output 
+counterpart candidate catalog will be in FITS format. The gtsrcid 
+tool also generates a log file that contains detailed information 
+about the counterpart identification. The name for that log file is 
+gtsrcid.log. It will be placed at the location from where the 
+gtsrcid tool was executed.
+
+The method used to define the counterpart probability (or function 
+of merit) may be either POSITION (e.g. the probability of positional
+coincidence), or any output catalog quantity that can be parameterized
+as a probability between 0 and 1 (see details in probMethod parameter 
+description).
+
+The counterpart probability assigned by gtsrcid is defined as:
+
+P = P_pos * P_add * (1 - P_chance)
+
+where P_pos is the positional coincidence probability, P_add any 
+additional probability (see below) and P_chance is the chance 
+coincidence probability.
+
+The positional coincidence probability is based on the assumption 
+that the source location uncertainties can be modeled by a 2-dimensional
+normal distribution. In the most general form, the location uncertainty 
+is described by an error ellipse, parameterized by the major and 
+minor axes and the position angle (measured counterclockwise 
+from celestial north).
+
+The user is allowed to enter a maximum number of counterpart candidates 
+per source to be included in the output catalog (see the description 
+of maxNumCpt parameter). Selection criterion on output catalog 
+quantities are possible to enter as well.
+
+Although gtsrcid is designed to digest a large variety of different 
+catalog type and formats, a certain number of rules have to be satisfied 
+for gtsrcid to work properly:
+
+1) Source Position: knowledge of source position is mandatory for 
+gtsrcid to work. So far, only celestial coordinates are supported 
+(Right Ascension and Declination). The gtsrcid tool tries to find this 
+information by first searching for columns with the Unified Content 
+Descriptors) POS_EQ_RA_MAIN and POS_EQ_DEC_MAIN. If those are not 
+found the following column name pairs are searched for 
+(in the specific order): Radeg/DECdeg, RAJ200/DEJ200,_RAJ2000/_DEJ2000, 
+or RA/DE.
+2) Position uncertainties: No generic UCDs exist for this information, and 
+specific column names ar searched for. First, elliptical errors regions are 
+searched for by looking for the column names 
+Conf_95_SemiMayor/Conf_95_SemiMinor/Conf_95_PosAng (for 95% error ellipses), 
+Conf_68_SemiMayor/Conf_68_SemiMinor/Conf_95_PosAng (for 68% error ellipses), 
+and Declination are searched for by looking for the column names e_RAdeg/e_DEdeg 
+(for 1 sigma errors), and e_RAJ200/e_DEJ200 (for 1 sigma errors). Finally, 
+circular errors are searched for by looking for the column names theta95 
+(for 95 % errors), and PosErr (for 1 sigma errors). If no one of these 
+column combinations has been found, the positional uncertainty will be taken 
+from the parameters srcPosError for the source catalog and from cptPosError
+for the counterpart catalog.
+3) Sourcename: To keep track of the source information each source 
+should have a source name. The gtsrcid tool finds the source name by 
+first searching for the UCD ID_MAIN. If no such UCD is found it then 
+searches for columns named NAME or ID.
+
+On output, gtsrcid produces a catalog of counterpart candidates. 
+Each row (entry) of this catalog present the association of an object 
+of the source catalog with an object of the counterpart catalog. For a 
+given object of the source catalog, several entries may exit, corresponding
+to the different possible counterparts that have been identified from
+the counterpart catalog. Each of the association will have an assigned
+counterpart probability, allowing to judge on the reality of the proposed
+association. Each counterpart candidate in the output catalog is specified by:
+
+1) A unique name of the format CC_XXXXX_YYYYY where XXXXX is the source 
+number in the source catalog (starting from 1) and YYYYY is the running 
+number of the counterpart candidate (starting from 1). For example, the 
+2nd counterpart candidate of the 5th source of the source catalog will 
+have the identifier CC_00005_00002. The unique name has the FITS column 
+name ID and the UCD ID_MAIN.
+
+2) The coordinates of the counterpart candidate in Right Ascension 
+and Declination for the epoch J2000 in units of degrees. The FITS 
+column names of the coordinates are RA_J2000 and DEJ2000, the UCDs 
+are POS_EQ_RA_MAIN and POS_EQ_DEC_MAIN.
+
+3) The position uncertainty of the counterpart candidate in form 
+of an error ellipse that defines the 95% confidence interval. 
+The major and minor axes of the error ellipse are stored in the columns 
+POS_ERR_MAJ and POS_ERR_MIN in unit of degrees. The position angle, 
+measured eastwards (or counterclockwise) from North in celestial 
+coordinates is stored in the column POS_ERR_ANG in units of degrees. 
+The UCD for all the three columns is ERROR.
+
+4) The counterpart candidate association probability in the range 
+of 0 to 1. The FITS column name of the probability is PROB. 
+Subsequent columns specify the probability based on the positional 
+coincidence, which is also called the likelihood (stored in column PROB_POS), 
+the product of any additional probabilities (stored in column PROB_ADD), 
+and the chance coincidence probability (stored in column PROB_CHANCE).
+
+5) The position of the counterpart candidate with respect to the 
+source is given in form of angular separation (stored in column ANGSEP 
+in units of degrees) and the position angle, measured eastwards 
+(or counterclockwise) from North in celestial coordinates 
+(stored in column POSANG in units of degrees).
+
+6) The row of the counterpart in the counterpart catalog (stored in column REF).
+
+
+The coordinates and positional uncertainty of the counterpart are 
+those of the object that has the smaller positional uncertainty 
+in either of the two input catalog.
+
+In addition to the generic quantities, additional quantities may 
+be copied from the input catalog to the output catalog. FITS columns 
+for these copied quantities are preceded by @. 
+
+New information can be derived in the output catalog by combining 
+information from quantities that are found in both input catalog. 
+For example, a spectral index may be calculated from the fluxes given 
+at two energies or frequencies in the input catalog. These so called 
+"derived quantities" will be added as final columns to the output 
+catalog. Note that these derived quantities can also be used to 
+specify additional probability laws. 
+
+For reading catalogs, gtsrcid makes use of the interface routines provided 
+by the library catalogAccess. Consequently the catalog can be read in all
+formats that are supported by catalog Access. The gtsrcid tool writes the 
+output catalog directly using cfitsio routines, thus only the FITS format 
+is supported on the output.
+
+The gtsrcid tool creates an ASCII log-file in the directory where the 
+executable is executed with the purpose of logging errors that occurred 
+during task execution, logging the actions that gtsrcid performed for 
+the counterpart search in order to control the proper execution of the 
+task, to provide a detailed report about the task execution in case 
+that the result looks suspicious to the user.
+
+For astronomical catalogs you may see: The HEASARC Catalog website: 
+http://heasarc.gsfc.nasa.gov/docs/archive.html or the VizieR Service website:
+http://vizier.u-strasbg.fr/viz-bin/VizieR.
+
+
+PARAMETERS
+
+Source Catalog Parameters:
+	
+srcCatName [string]
+Name of the input source catalog for which counterpart IDs are desired. 
+The input catalog may be either a file that resides on disk [in either 
+FITS or TSV (tab-separated values) format], or it may be a catalog accessible 
+via the web. 
+The source Catalog may typically be the FERMI LAT source Catalog.
+Note: Web access is not yet available in the current version.
+ 	
+srcCatPrefix [string] 	 	
+Prefix that will be applied to the source names in the output catalog. 
+Prefixing allows unique names to be assigned for all quantities in the 
+output catalog. Source catalog quantities in the output catalog will 
+begin with @<srcCatPrefix>_.
+For example: For srcCatPrefix = LAT, the FLUX quantity of the source 
+catalog will get the name @LAT_FLUX in the output catalog. Quantities 
+already having a prefix in the source catalog will not be prefixed again.
+
+(srcCatQty = *) [string]
+Specifies which quantities of the input source catalog should be included 
+in the output catalog.
+Quantity extraction is useful for keeping track of important source 
+parameters, and is mandatory for deriving new quantities. Quantities are 
+specified by a comma-separated list.  If srcCatQty = *, all quantities of 
+the source catalog will be extracted. If srcCatQty is specified as "blank" 
+no quantity will be extracted.
+This is a hidden parameter. The default value is *.
+ 	
+(srcPosError = 0.0) [double]
+If no positional uncertainties are given in the source catalog, srcPosError 
+specifies the positional uncertainty for all objects (in units of degrees).
+
+
+Counterpart Catalog Parameters:
+
+cptCatName [string]
+Name of the counterpart catalog used for source identification.
+The counterpart catalog may be either a file residing on disk [in either 
+FITS or TSV (tab-separated values) format], or it may be a catalog that 
+is accessible via the web. This catalog is typically taken from a database, 
+such as CDS or HEASARC.
+Note: Web access is not yet available in the current version.
+ 	
+cptCatPrefix [string]
+Prefix used to build the counterpart catalog quantity names in the output 
+catalog. Prefixing allows unique names to be assigned for all quantities 
+in the output catalog. Counterpart catalog quantities in the output catalog 
+will begin with @<cptCatPrefix>_.
+For example: For cptCatPrefix = 1RXS, the COUNTS quantity of the counterpart 
+catalog will get the name @1RXS_COUNTS in the output catalog. Quantities in 
+the counterpart catalog that already have a prefix will not be prefixed again.
+ 	
+(cptCatQty = *) [string]
+Specifies which quantities of the counterpart catalog should be extracted 
+into the output catalog.
+Quantity extraction is useful for keeping track of important counterpart
+ parameters, and is mandatory for deriving new quantities. Quantities 
+are specified by a comma-separated list, i.e. 3EG,RAJ2000,DEJ2000. If 
+cptCatQty = *, all quantities of the counterpart catalog will be extracted. 
+If cptCatQty is "blank" no quantity will be extracted. This is a hidden 
+parameter. The default value is *.
+ 	
+(cptPosError = 0.0) [double]
+If no positional uncertainties are given in the counterpart catalog, 
+cptPosError specifies the positional uncertainty for all objects 
+(in units of degrees). This is a hidden parameter. The default value is 0.0.
+
+
+Output Catalog Parameters
+ 	
+outCatName [string]
+Name of the output catalog FITS file.
+ 	 	 	
+(outCatQty01)[string]
+Allows a new quantity to be derived from quantities that exist in the 
+output catalog.
+Quantities in the output catalog may be either generic quantities (such 
+as the counterpart candidate name, position, and position uncertainty), 
+or quantities that have been extracted from the source or the counterpart 
+catalogs.
+A quantity is derived using the syntax <Q_NEW> = <FCT_Q>, where <Q_NEW> 
+is the name of the new quantity, and <FCT_Q> is an arithmetic function 
+that describes how the quantity is derived (the allowed arithmetic is 
+the FTOOLS column evaluation interface).
+For example: outCatQty01 = "RATIO = $@LAT_FLUX$ / $@1RXS_COUNTS$" derives 
+a new quantity RATIO that describes the ratio between the LAT source 
+flux and the 1RXS counterpart count rate.
+Note the enclosure of the source and counterpart quantities within $...$. 
+This  syntax is mandatory in order to correctly interpret the presence of 
+a non-alphanumeric letter (i.e. the @ prefix) in the specified quantity 
+names. If the parameter is left blank, no new quantity will be derived.
+ 	
+outCatQty02, ..., outCatQyt09 = [string]
+These parameters allow additional new quantities to be derived, similar to 
+outCatQty01.
+In addition, quantities derived using these parameters may be included in 
+the arithmetic function.
+For example: outCatQty02 = "PROB_RATIO = exp(-0.5 * ((RATIO - 2.7)/0.5)^2)" 
+is a valid parameter that uses the result of outCatQty01 to assign a Gaussian 
+shaped probability density function for the quantity RATIO. If the parameters 
+are left blank, no new quantities will be derived.
+
+Task Parameters
+
+probMethod = POSITION [string]
+Method used to define the counterpart probability (or function of merit).
+The method may be either POSITION (e.g. the probability of positional 
+coincidence), or any output catalog quantity that is comprised between 0 and 1.
+Methods can be combined using the multiplication symbol *. In this case, the 
+probabilities of the specified methods are multiplied.
+For example: probMethod = "POSITION * PROB_RATIO" specifies a counterpart 
+probability that is the product between the spatial coincidence probability and 
+the flux ratio probability function PROB_RATIO, as derive by parameter 
+outCatQty02. 
+The default value is POSITION.
+ 	
+probThres = 0.10 [double]
+Probability threshold for counterpart candidates.
+Only objects with counterpart probabilities larger than this threshold will 
+be included in the output catalog.
+The default value is 0.01.
+ 	
+maxNumCpt = 100 [int]
+Maximum number of counterpart candidates per source that are included in 
+the output catalog.
+Since counterpart candidates are stored in decreasing order of probability, 
+the less probable counterpart candidates will be suppressed if necessary. 
+If maxNumCpt = 0, no limitation will be applied.
+The default value is 100.
+ 	
+(select01 = )[string]
+Selection criterion on output catalog quantities.
+Counterpart candidates that do not meet the selection criterion will be 
+excluded 
+from the output catalog. The syntax of this parameter corresponds to the 
+FTOOLS row filtering specification. All quantities present in the output 
+catalog (including in particular derived quantities) may be used for 
+selection. If the parameter is left blank, no selection criterion will 
+be applied. This is a hidden parameter.
+ 	
+select02, ..., select09 = [string]
+Additional selection criteria, similar to the one specified by the parameter 
+select01. If the parameters are left blank, no selection will be applied. 
+These are hidden parameters.
+
+Standard Parameters
+
+(chatter)  
+This parameter fixes the output verbosity:
+chatter = 0: no information will be logged
+chatter = 1: only errors will be logged
+chatter = 2: errors and actions will be logged
+chatter = 3: report about the task execution
+chatter = 4: detailed report about the task execution 
+This is a hidden parameter. The default value is 1.
+
+(clobber = yes)
+If true, an existing file of the same name will be overwritten.        
+This is a hidden parameter. The default value is "yes".
+
+(debug = no)   
+Activate debugging mode. The default value is "no". When debug is
+"no", all exceptions that are not caught and handled by individual tool-specific 
+code are caught by a top-level exception handler that displays information 
+about the exception and then exits. When debug is "yes", such exceptions are 
+not caught by the top level code. Instead the tool produces a segmentation 
+violation, which is more useful for debugging. When debugging mode is enabled, 
+the tool produces more verbose output describing any errors or exceptions that 
+are encountered.
+
+(gui = no) 
+Graphical user Interface (GUI) mode activated if "yes" is specified. The 
+default value is "no".
+
+(mode = ql)
+Mode of automatic parameters. The default value is "ql". 
+
+        
+EXAMPLES
+
+The way that the parameters are passed follows the FTOOLs model. They could be 
+passed by answering from a prompt, as a list in a command line, or by editing 
+the parameter file.
+
+To be prompted for gtsrcid simply type in the command line: 
+
+> gtsrcid
+
+This will prompt for parameter values. Beware that not all parameters are 
+prompted. Some of the parameters are "hidden".  If you want to change one 
+of the "hidden" parameter you should specify its value in the command line. 
+For example, it is possible to change the counterpart position uncertainty 
+in this way:
+
+>gtsrcid cptPosError=0.01
+
+There are several examples of how to run the tool in the analysis thread 
+(see http://fermi.gsfc.nasa.gov/ssc/data/analysis/scitools/src_ident.html) 
+only one is reproduced here:
+
+A catalog of LAT sources (for a simulated LAT sky) is compared to the 
+Third EGRET Catalog (http://heasarc.gsfc.nasa.gov/docs/cgro/egret/3rd_EGRET_Cat.html).
+In this case, you may run the gtsrcid tool in the following way:
+
+> gtsrcid 
+Source catalog name [] : LATSourceCatalog_v1.fits
+Source catalog column prefix [] : DC2_Cat
+Counterpart catalog name [] : 3EG.fits
+Counterpart catalog column prefix [] : 3EG
+Output catalog name [] : DC2_LATSourceCatalog_v1-3EG.fits
+Probability method [POSITION] : 
+Probability threshold [0.10] : 0.2
+Maximum number of counterpart candidates [100] : 1
+
+In this example the LAT Catalog is named LATSourceCatalog_v1.fits while the 
+counterpart Catalog is called 3EG.fits. The name of the output catalog is 
+data/DC2_LATSourceCatalog_v1-3EG.fits. The position probability method was 
+used (see formula 1). The maximum number of counterpart candidates was chosen 
+to be 1 and the probability threshold was 0.2.
+
+
+
+KNOWN BUGS
+
+
+
+SEE ALSO
+
+ 

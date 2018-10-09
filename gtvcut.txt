@@ -1,0 +1,160 @@
+NAME
+
+    gtvcut - This tool displays a summary of the Data Sub-Space keywords. 
+
+
+USAGE
+    
+    gtvcut infile table
+
+
+DESCRIPTION
+
+    gtvcut is used to view the Data Sub-Space (DSS) keywords in a given
+    extension, where the EVENTS extension is assumed by default. The DSS
+    keywords scheme was introduced for recording data selection criteria
+    in a systematic manner. Note that inspection of the file extension 
+    with the tools fv or ds9 would serve the same purpose.
+
+    For FERMI data, DSS keywords store information in the FITS headers
+    about the selection criteria that have been applied to the data using
+    the gtselect tool (type "fhelp gtselect" for further explanation). The 
+    DSS keywords are used by the exposure-related tools (gtexpmap, gtrspgen)
+    and by gtlike for calculating various quantities, such as the
+    predicted number of detected events given the source model. These
+    keywords must be exactly the same for all of the filtered event files
+    considered in a given analysis. gtlike will check to ensure that all
+    of the DSS keywords are the same in all of the relevant files.
+
+    A filtering condition is expressed with a set of keywords (e.g., DSTYP1,
+    DSUNI1, DSVAL1, and DSREF1). For example, selecting events in a given 
+    time interval (TIME>start_time&&TIME<end_time), the filtering conditions 
+    are stored as
+
+    DSTYP3: TIME
+    DSUNI3: s
+    DSVAL3: TABLE
+    DSREF3: :GTI
+
+    or
+
+    DSTYP3 = TIME
+    DSUNI3 = s   
+    DSVAL3 = start_time:end_time
+
+    Selecting events in a given energy range 
+    (ENERGY>start_energy&&ENERGY<end_energy), the filtering conditions are
+    stored as
+
+    DSTYP4: ENERGY
+    DSUNI4: MeV
+    DSVAL4: start_energy:end_energy
+
+
+PARAMETERS
+
+    infile [filename]
+         Input event FITS file. This is the file containing the LAT event data.
+	
+    table [string]
+         Data extension name. Default (and only possible) is "EVENTS".
+ 	 	 
+    (suppress_gtis) [boolean]
+         Flag to suppress the printing of the individual GTI start and stop
+         times. Default is "no".
+ 	 	 
+    (chatter) [integer]  
+         This parameter fixes the output verbosity: no screen output (0),
+         nominal screen output (2), maximum verbosity (4). Default is "2".
+
+    (clobber) [boolean]
+         If true, an existing file of the same name will be overwritten. 
+         Default is "yes".
+    
+    (debug) [boolean]
+         Activate debugging mode. Default is "no". When debug is "no", all 
+         exceptions that are not caught and
+         handled by individual tool-specific code are caught by a top-level
+         exception handler that displays information about the exception and
+         then exits. When debug is "yes", such exceptions are not caught by the
+         top level code. Instead the tool produces a segmentation violation,
+         which is more useful for debugging. When debugging mode is enabled,
+         the tool produces more verbose output describing any errors or
+         exceptions that are encountered.
+    
+    (gui) [boolean]
+         Graphical User Interface (GUI) mode is activated if set to "yes".
+         Default is "no".
+    
+    (mode) [string]
+         Mode of automatic parameters: "h" for batch, "ql" for interactive. 
+         Default is "ql".
+
+
+EXAMPLES
+
+    Parameters are passed following the FTOOLs model. They could be passed
+    answering from a prompt, as a list in a command line, or by editing
+    the parameter file.
+ 
+    To be prompted for gtvcut simply type in the command line: 
+
+> gtvcut
+
+    This will prompt for parameter values. Not all parameter are prompted: 
+    some of them are "hidden". To change one of the "hidden" parameter, 
+    the user should specify the values in the command line or modify its 
+    mode by editing the parameter file. 
+    For example, to suppress the printing of the individual GTI start and 
+    stop times, the following command line as to be typed:
+
+> gtvcut suppress_gtis=yes
+
+    In the next example the gtselect tool (see the gtselect help) was applied
+    first selecting a time range of the events in the original event file
+    between 252374400 (MET sec) and 252460800 (MET sec), an energy
+    range between 30 MeV and 200000 MeV, and a region of 20 degrees
+    from a central point at coordinates RA=193.98 DEC=-5.82.
+
+> gtvcut
+Input FITS file[] events.fits
+Extension name[EVENTS]
+
+    The output is as follows:
+    
+DSTYP1: BIT_MASK(EVENT_CLASS,0,P7REP)
+DSUNI1: DIMENSIONLESS
+DSVAL1: 1:1
+
+DSTYP2: POS(RA,DEC)
+DSUNI2: deg
+DSVAL2: CIRCLE(193.98,-5.82,20)
+
+DSTYP3: TIME
+DSUNI3: s
+DSVAL3: TABLE
+DSREF3: :GTI
+
+GTIs:
+252374400 252460800
+
+DSTYP4: ENERGY
+DSUNI4: MeV
+DSVAL4: 30:200000
+
+DSTYP5: ZENITH_ANGLE
+DSUNI5: deg
+DSVAL5: 0:105
+
+
+    That last example could be also be run in the command line as follows:
+
+> gtvcut infile=events.fits table=EVENTS
+
+
+KNOWN BUGS
+
+
+SEE ALSO
+
+     gtselect

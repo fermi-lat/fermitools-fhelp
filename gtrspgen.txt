@@ -1,0 +1,220 @@
+NAME
+    gtrspgen - Creates a "Detector Response Matrix" (DRM or RSP) FITS
+    file from the multi-dimensional response functions.
+
+USAGE
+
+    gtrspen respalg specfile scfile outfile irfs time thetacut
+    dcostheta ebinalg emin emax enumbins denergy ebinfile
+
+DESCRIPTION
+
+        The gtrspgen tool produces a Response Matrix (RSP) file
+        required to analyze a binned spectrum in an HEASARC standard
+        (i.e. XSPEC compatible) format.  The response matrix is
+        computed from the detailed response functions provided by the
+        LAT instrument team. The elements of the matrix are directly
+        related to the probability of an incident photon with a true
+        energy of E being detected by the LAT with an apparent energy
+        E'.  The source position, the observation time, and energy
+        grid are extracted from a type-I PHA (spectrum) file, while
+        the pointing/livetime history file provides the instrument
+        orientation during the observation. The tool has two main
+        options called "GRB" and "PS". The "GRB" option is for short
+        observations during which the instrument's pointing does not
+        change significantly. This is relevant for most gamma-ray
+        burst observations. The "PS" option is for an observation
+        relevant to a point source over more than a fraction of an
+        orbit, requiring that the instrument response be averaged over
+        the different source directions in instrument coordinates.
+        This tool needs as input two files: A pointing history or
+        "spacecraft" file covering the time of the observation, which
+        can be obtained from the Fermi Science Support Center (FSSC)
+        web site, and a PHA file, which can be created using the gtbin
+        tool (see the gtbin help). For the LAT data have to
+        be binned into energy channels using the gtbin tool. But the
+        first step in the analysis is to select all the counts from a
+        region of 10 to 15 degrees around the burst position from the
+        time range that includes the burst. These counts can be
+        selected using the gtselect tool.  For further information on
+        how to perform a Binned GRB Spectral analysis using the LAT
+        data it is highly recommended to read the Cicerone Manual:
+http://fermi.gsfc.nasa.gov/ssc/data/analysis/documentation/Cicerone/Cicerone_GRBs/GRB_binned_analysis.html
+        and/or the analysis thread:
+http://fermi.gsfc.nasa.gov/ssc/data/analysis/scitools/
+
+
+PARAMETERS
+
+General Parameters
+
+respalg [string: GRB|PS]
+      The type of response computation to perform, either GRB or PS.
+      If set to GRB, the response will be computed for a single
+      specific time supplied by the user. If set to PS, a response
+      from a longer observation will be computed. The default value
+      is GRB.
+
+specfile [file]
+      Name of input spectrum file, in PHA format. 
+                 
+scfile [file]
+     Spacecraft data file.
+
+outfile [file]
+     Name of output response file, in the HEASARC "RSP" format.          
+
+irfs [string]
+     The instrument response function that will be used.
+
+(sctable = SC_DATA) [string]
+     Table containing spacecraft data.
+                 
+(resptpl = DEFAULT) [file]
+     The full path to the template used to create the output file. This
+     should not normally be changed. If DEFAULT is given, the rspgen
+     application will use the standard template for LAT RSP files. This is
+     a hidden parameter. The default value is "DEFAULT".
+
+GRB Response Parameters
+
+time = 0 [double]
+     The time of the burst in Mission Elapsed Time (MET) seconds. 
+
+Point Source Response Parameters
+
+thetacut = 60  [double]
+     The maximum angle cutoff for the differential exposure computation in
+     degrees. 
+                 
+dcostheta = 0.05 [double]
+     The bin size to be used for the spacecraft pointing history
+     (cos(theta)).
+
+Energy Binning Parameters
+
+ebinalg = LOG [string: FILE|LIN|LOG]
+      Indicates how the output energy bins will be specified. Legal values are
+      FILE (bins will be read from a bin definition file), LIN (linearly
+      uniform bins), and LOG (logarithmically uniform bins). This is only
+      used if energy binning is required by the output type selected by the
+      algorithm parameter. The default value is LOG.
+                 
+(efield= ENERGY) [string]
+      This is the name of the field containing the energy values for energy
+      binning. This is a hidden parameter. The default value is consistent
+      with the event LAT data file format.
+                 
+emin = 30 [double]
+      The lowest energy of the first interval for linearly or
+      logarithmically uniform bins in MeV. Only used if ebinalg is LIN or
+      LOG. The default value is 30 MeV.
+                 
+emax = 200000[double]
+      The highest energy of the last interval for linearly or
+      logarithmically uniform bins in MeV. Only used if ebinalg is LIN or
+      LOG. The default value is 200000 MeV.
+                 
+enumbins = 100 [integer]
+      The number of bins for logarithmically uniform bins. Only used if
+      ebinalg is LOG. The default value is 100.
+                 
+denergy = 50 [double]
+      The width of linearly uniform bins in MeV. Only used if ebinalg is
+      LIN. The default value is 50.
+                 
+ebinfile = NONE [file]
+      The name of the energy bin definition file. Only used if ebinalg is
+      FILE. The default value is "NONE".
+
+
+Other hidden parameters:
+
+(chatter)  
+      This parameter fixes the output verbosity: no screen output
+      (0), nominal screen output (2), maximum verbosity (4). The
+      default value is 2.
+
+(clobber = yes)
+      If true, an existing file of the same name will be overwritten. 
+       This is a hidden parameter. The default value is: "yes".
+
+(debug = no)   
+      Activate debugging mode. The default value is "no". When debug
+      is "no", all exceptions that are not caught and handled by
+      individual tool-specific code are caught by a top-level
+      exception handler that displays information about the exception
+      and then exits. When debug is "yes", such exceptions are not
+      caught by the top level code. Instead the tool produces a
+      segmentation violation, which is more useful for
+      debugging. When debugging mode is enabled, the tool produces
+      more verbose output describing any errors or exceptions that
+      are encountered.
+
+(gui = no) 
+     Graphical user Interface (GUI) mode activated if "yes" is
+     specified. The default value is "no".
+
+(mode = ql)
+     Mode of automatic parameters. The default value is "ql". 
+
+        
+EXAMPLES
+
+     The way that the parameters are passed follows the FTOOLs model: They
+     could be passed by answering prompts, as a list in a command line,
+     or by editing the parameter file.
+ 
+     To be prompted for gtrspgen simply type in the command line: 
+
+>gtrspgen
+
+     This will prompt for parameter values. Beware that not all parameters
+     are prompted: some of the parameter are "hidden".  If you want to
+     change one of the "hidden" parameter you may specify its value in the
+     command line. For example if you do want to open the GUI option type
+     in the command line:
+
+>gtrspgen gphinumbins=4
+ 
+
+     An example of how to run the gtrspgen tool is given below:
+
+> gtrspgen
+This is gtrspgen version ScienceTools-v9r33p0-fssc-20140317
+Response calculation method (GRB|PS) [GRB] 
+Spectrum file name[] GRB.pha
+Spacecraft data file name[] spacecraft_data_file.fits
+Output file name[] GRB.rsp
+Time of GRB (s)[0.] 252374400
+Response function to use [CALDB] CALDB
+Algorithm for defining true energy bins (FILE|LIN|LOG) [LOG] 
+Start value for first energy bin in MeV[30.] 
+Stop value for last energy bin in MeV[200000.] 
+Number of logarithmically uniform energy bins[100] 
+
+
+    In this case the GRB option was chosen. The spectrum file was
+    generated previously with gtbin with the name: GRB.pha.
+
+    The same task can also be run in the command line in this way:
+
+>gtrspgen respalg=GRB specfile=GRB.pha scfile=spacecraft_data_file.fits
+ outfile=GRB.rsp time=252374400 irfs=CALDB ebinalg=LOG emin=30
+ emax=200000 enumbins=100
+
+
+
+KNOWN BUGS
+
+
+SEE ALSO
+
+    * gtbin 
+
+    * gtselect
+
+    * The Cicerone Manual:
+    http://fermi.gsfc.nasa.gov/ssc/data/analysis/documentation/Cicerone/Cicerone_GRBs/GRB_binned_analysis.html
+
+

@@ -1,0 +1,289 @@
+NAME
+
+    gtexpmap - Calculates exposure maps for unbinned likelihood analysis.
+
+
+USAGE
+    
+    gtexpmap evfile scfile expcube outfile irfs srcrad nlong nlat nenergies
+
+
+DESCRIPTION
+
+    This tool creates exposure maps that are needed to compute the
+    predicted number of photons within a given Region-of-Interest
+    (ROI) for diffuse components in your source model.  They are used
+    only for unbinned likelihood analysis.  They differ significantly
+    from conventional exposure maps, which are the integrals of
+    effective area over time. The exposure calculation used in
+    unbinned likelihood analysis consists of an integral of the total
+    response (effective area times energy dispersion times point
+    spread function) over the entire ROI.  See the gtlike help
+    for more details regarding the likelihood analysis.
+    
+    The LAT point spread function is relatively broad at low
+    energies. At 100 MeV, 68% of the counts will lie within 3.5
+    degrees of the source (see
+    http://www-glast.slac.stanford.edu/software/IS/glast_lat_performance.htm),
+    As a consequence, the PSF tails of nearby point sources and
+    diffuse components will overlap significantly with the emission
+    from your sources of interest. To fit your sources accurately, the
+    user will therefore also need to model simultaneously the nearby point
+    sources and diffuse components; and this will typically require a
+    ROI, centered on your sources, that is several times the
+    characteristic PSF size in order to have sufficient data to
+    constrain all of the components in your model.
+    
+    The source model should include any sources that can contribute
+    significantly to the ROI, and again because of the size of the
+    PSF, this implies a "Source Region", centered on the ROI, with a
+    radius that is larger than the ROI radius by several PSF length
+    scales.  For example, when fitting a single point source, a ROI
+    with a radius of 10 degrees and a Source Region radius of 20
+    degrees would be appropriate.  Note that since the size of the LAT
+    PSF goes roughly as E^{-0.8}, if the user is considering only higher
+    energy photons, e.g., > 1 GeV, smaller ROI and Source Region radii
+    of just a few degrees may be used.
+    
+    All of the sources in the Source Region should be included in the
+    source model file that is input to gtlike (see the gtlike and
+    ModelEditor help).  The positions and spectral models of these
+    sources can either be obtained from a catalog or via a source 
+    detection step.  The diffuse components will typically include 
+    the Galactic diffuse emission and an isotropic extragalactic 
+    component, but may also include discrete diffuse components such 
+    as super-nova remnants or the large magellanic cloud.
+    
+    The exposure map used in the likelihood analysis must extend over
+    the entire Source Region, and it is specific to the ROI. The
+    radius of the Source Region is an input to gtexpmap and is given
+    by the srcrad parameter (in degrees). The radius of the ROI is set
+    when the event data are extracted using the gtselect tool, and
+    this information is written to the FITS header of the filtered
+    file (see the gtselect help).
+    
+    Since most analyses will likely consider photon energies
+    down to 100 MeV, a Source Region radius that is at least 10 degrees 
+    larger than the ROI radius is recommended (a warning message will 
+    be prompted if this is not the case when running gtexpmap).
+    
+    The spatial and energy gridding (nlong, nlat, and nenergies
+    parameters) for the Source Region must also be provided in
+    gtexpmap. Half-degree pixels are a nominal choice for gtexpmap,
+    and that means nlong=120 and nlat=120 if 30 degrees radius was
+    chosen for the srcrad parameter.  Smaller pixels should result in
+    a more accurate evaluation of the diffuse source fluxes, but they
+    will also make the exposure map calculation itself more time
+    consuming, scaling roughly with the number of pixels in the map.
+    The energy range of the exposure map is determined by the
+    selections made with gtselect to produce the filtered event file,
+    and that energy range is divided into a number of logarithmically
+    spaced bins given by nenergies parameter.  These maps are used to
+    integrate the spectra of the diffuse components in order to
+    determine the predicted counts from these sources. If the spectra
+    of the diffuse components are fairly featureless (i.e., mostly
+    power-laws, with no sharp spectral features such as cut-offs or
+    spectral lines), then 4 or 5 energy bins per decade are probably
+    sufficient.
+    
+    As input, gtexpmap also needs the livetime spent at each
+    inclination angle at every point in the Source Region. This can
+    be provided by the livetime cube maps, which have the information
+    about the livetime as a function of sky position and off-axis
+    angle. These maps could be created by gtltcube (see the gtltcube
+    help) or obtained from the FSSC. If the livetime cube file is not
+    provided gtexpmap will calculate these livetimes from the
+    spacecraft file, but it is nonetheless recommended to pre-compute
+    the livetime cubes before running gtexpmap, as doing so from the
+    spacecraft file will take a substantial amount of execution time.
+    Since gtltcube produces a FITS file covering the entire sky, the
+    output of this tool can be used for generating exposure maps for
+    ROIs in other parts of the sky that have the same time interval
+    selections.  Note that the livetime cube is calculated on a
+    spatial healpix grid (HEALPix is an acronym for Hierarchical Equal
+    Area isoLatitude Pixelization: http://healpix.jpl.nasa.gov/),
+    while the exposure map is calculated on a longitude-latitude grid.
+
+
+PARAMETERS
+
+    evfile [filename]
+         Input event file. This is a FITS file containing the event
+         data, typically created with the gtselect tool (see gtselect 
+	 help for further explanation).
+      
+    (evtable) [string]
+         Event table extension name. Default is "EVENTS".
+    
+    
+    scfile [filename]
+         Spacecraft data file containing information such as the spacecraft
+         pointing as a function of time. This file could be generated by
+         gtorbsim for simulated observations (see gtorbsim help for further
+         explanation) or more commonly it can be obtained from the FSSC
+         website. 
+     
+    (sctable) [string]
+         Spacecraft data extension. Default is "SC_DATA".
+     
+    expcube [filename]
+	 FITS file containing livetime as a function of sky position and
+	 off-axis angle. This file can be generated by gtltcube or obtained
+	 from the FSSC website. See the gtltcube help for further explanation.
+	 gtexpmap will integrate the livetimes directly from the
+         spacecraft file if no livetime cube file is provided.
+    
+    outfile [filename]
+         Output FITS file name containing the exposure map used in 
+         unbinned likelihood analysis.
+    
+    irfs [string]
+	 Instrument response functions. The instrument response (PSF, effective
+	 area, energy resolution) is currently a function of energy,
+	 inclination angle (the angle between the source and the LAT normal)
+	 and photon category. Since the LAT will usually survey the sky, a
+	 source will be observed at different inclination angles. Each count
+	 will therefore be characterized by a different instrument response
+	 function (IRF). The default value "CALDB".
+    
+     evtype [integer]
+   	  The evtype to be used in generating the bacground data. The
+   	  default is INDEF which will use the default in the input
+   	  file. This can be overridded by entering the desired event
+   	  type e.g. 3 for FRONT + BACK events. 
+
+    srcrad [double]
+         Radius of source model region (degrees). The center of the source
+         region is obtained from the Data Sub-Space DSS keywords defining the
+         Region-of-Interest in the event file. Default is "30".
+     
+    nlong [integer]
+         Number of longitude points.  Half-degree pixels are a nominal choice
+         for gtexpmap.  That means nlong=120 and nlat=120 (default values) if 
+	 30 degrees radius was chosen for the srcrad parameter. This parameter
+	 accepts values in the range 2-1000.
+     
+    nlat [integer]
+         Number of latitude points.  Half-degree pixels are a nominal choice
+         for gtexpmap.  That means nlong=120 and nlat=120 (default values) if 
+	 30 degrees radius was chosen for the srcrad parameter. This parameter
+	 accepts values in the range 2-1000.
+     
+    nenergies [integer]
+         The number of energy bands to consider. Minimum and maximum energies
+         are obtained from the DSS keywords. The number of energies for the
+         grid depends on complexity of the spectra of the diffuse components,
+         but 4 to 5 per decade are usually sufficient. This parameter
+	 accepts values in the range 2-100, with default being "20".
+     
+    (submap) [boolean]
+         This parameter allows you to compute a submap. Default is "no". 
+	 This feature (if "yes") was intended to allow for parallelization of 
+	 the gtexpmap computation for a given geometry.  You can set the 
+	 application to run in parallel on different regions of the overall 
+	 map and then add the resulting FITS image together using standard FTOOLS
+         (http://heasarc.gsfc.nasa.gov/docs/software/ftools/ftools_menu.html). 
+	 The user should be careful to define the submaps so that they do not
+         overlap or leave gaps.
+    
+    (nlongmin) [integer]
+         Minimum longitude index for submap. Default is "0".
+    
+    (nlongmax) [integer]
+         Maximum longitude index for submap. Default is "0".
+    
+    (nlatmin [integer])
+         Minimum latitude index for submap. Default is "0".
+    
+    (nlatmax [integer])
+         Maximum latitude index for submap. Default is "0".
+    
+    (chatter) [integer]  
+         This parameter fixes the output verbosity: no screen output (0),
+         nominal screen output (2), maximum verbosity (4). Default is "2".
+
+    (clobber) [boolean]
+         If true, an existing file of the same name will be overwritten. 
+         Default is "yes".
+    
+    (debug) [boolean]
+         Activate debugging mode. Default is "no". When debug is "no", all 
+         exceptions that are not caught and
+         handled by individual tool-specific code are caught by a top-level
+         exception handler that displays information about the exception and
+         then exits. When debug is "yes", such exceptions are not caught by the
+         top level code. Instead the tool produces a segmentation violation,
+         which is more useful for debugging. When debugging mode is enabled,
+         the tool produces more verbose output describing any errors or
+         exceptions that are encountered.
+    
+    (gui) [boolean]
+         Graphical User Interface (GUI) mode is activated if set to "yes".
+         Default is "no".
+    
+    (mode) [string]
+         Mode of automatic parameters: "h" for batch, "ql" for interactive. 
+         Default is "ql".
+    
+    
+EXAMPLES
+    
+    Parameters are passed following the FTOOLs model: They could be passed
+    answering from a prompt, as a list in a command line, or by editing
+    the parameter file.
+     
+    To run gtexpmap simply type in the command line: 
+
+> gtexpamp
+ 
+    The parameter values have to be provided. Not all parameter are prompted: 
+    some of them are "hidden". To change one of the "hidden" parameter, the 
+    user should specify the values in the command line or modify its mode 
+    by editing the parameter file. For example, to avoid overwriting the 
+    outfile, the following command line has to be typed:
+ 
+> gtxmap clobber=no
+ 
+    An example of how to run gtexpmap is given below: 
+
+> gtexpmap
+The exposure maps generated by this tool are meant
+to be used for *unbinned* likelihood analysis only.
+Do not use them for binned analyses.
+Event data file[] ps1_55d_filtered.fits
+Spacecraft data file[] spacecraft_data_file.fits
+Exposure hypercube file[] expCube.fits
+output file name[] expMap.fits
+Response functions[P7REP_SOURCE_V15] P7REP_SOURCE_V15
+Radius of the source region[30] 30
+Number of longitude points[120] 120
+Number of latitude points[120] 120
+Number of energies[20] 20
+Computing the ExposureMap using expCube.fits
+
+    In this case, the source region was selected with gtselect, (see the
+    gtselect help) to be 20 degrees, and the ROI was selected as 30
+    degrees. The livetime cube was provided (expCube.fits) and
+    the exposure map generated has 120 longitude and latitude points, and
+    20 energy bins.
+ 
+    The previous example could be also run in the command line as follows:
+
+> gtexpmap evfile=ps1_55d_filtered.fits scfile=spacecraft_data_file.fits
+  expcube= expCube.fits outfile=expMap.fits irfs=P7REP_SOURCE_V15
+  srcrad=30 nlong=120 nlat=120 nenergies=20
+
+
+KNOWN BUGS
+
+
+SEE ALSO
+
+     gtorbsim
+     
+     gtlike
+
+     gtltcube
+
+     gtselect
+

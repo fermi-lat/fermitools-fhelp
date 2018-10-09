@@ -1,0 +1,405 @@
+
+NAME 
+
+       gtorbsim - Generate spacecraft orbit and attitude data for a
+       variety of pointing or survey mode strategies.
+
+USAGE
+ 
+       gtorbsim start_MJD stop_MJD Timeline EphemName EphemFunc Resolution Units Initial_Ra Initial_DEC OutPutFile saafile 
+
+
+DESCRIPTION
+
+The FSSC Orbit Simulator, gtorbsim, is a spacecraft attitude
+calculator based on the code already implemented in the general
+purpose scheduling and planning system TAKO (Timeline Assembler
+Keyword Oriented) at the Fermi Science Support Center. The simulator
+inherits many features of TAKO, but it does not have any scheduling
+capabilities. The main purpose of this simulator is:
+
+1) to calculate spacecraft attitude, that is where the local body
+frame axes are oriented relative to the sky 2) to determine when
+events such as entry/exit in South Atlantic Anomaly (SAA) will take
+place
+ 
+The above must be accomplished starting with a series of pointing
+commands.  The output of the orbit simulator is a FITS spacecraft data
+file.
+
+Several Fermi Science Tools such as gtobssim, gtltcube, gtlike, etc 
+require the spacecraft data file as input. You may use the spacecraft 
+data file provided by the FSSC, but in many cases you will probably need 
+to generate that file if you want to perform a particular analysis of
+simulated data.
+
+The first input you will have to provide to gtorbsim is the
+observation mode strategy. Several operational modes are used with
+Fermi, but the spacecraft will acquire scientific data only in survey
+and pointed modes.
+
+The sky survey mode is basically zenith pointed throughout the orbit
+and has two sub modes: 1) with rocking, and 2) without rocking.
+Rocking provides more uniform sky coverage and allows for complete sky
+coverage within a shorter period of time.  Different rocking profiles
+may be implemented, (square or sinusoid) with a basic 2-orbit period
+and a 60-degree maximum amplitude (above and below the orbit plane).
+
+In pointed observation mode, the Z-axis of the observatory is
+commanded to point at a celestial target.  An observing sequence is
+implemented via a series of commanded targets.  There are two sub
+modes for observing any given target: 1) target tracking, 2) target
+inertial.  Target tracking mode maintains a commanded celestial target
+within a 60-degree diameter field of view.  The target is allowed to
+drift at about 1 degree/minute across this field of view during the
+non-occulted part of the orbit.  Target inertial mode maintains the
+Z-axis on the target to within the 2-degree control capability of the
+spacecraft.  This mode may be interrupted for downlink transmissions
+of science data.  Earth avoidance is accomplished in this mode via
+stored commands that keep the field of view on the sky while the
+target is occulted.  Alternatively, an automatic earth avoidance
+capability may be used.
+
+Even though it will be possible to do pointed observations, the large
+FOV of LAT provides such extensive data on individual sources that
+strong justification is required to use other types of observation modes than
+sky survey. For that reason, Fermi operates in
+sky-survey mode most of the time.
+
+With the gtorbsim tool you may choose to calculate the attitude in
+survey or pointed mode. In survey mode you may chose between two
+options: fixed or profiled.
+
+In fixed survey mode the spacecraft does a sky survey with a specified
+offset with respect to its local zenith for one orbit, and then uses
+the opposite offset for the next orbit, and so on. In profiled survey
+the spacecraft observes in survey mode according to a specified
+profile consisting of 17 increasing times and 17 zenith offsets. The
+17 increasing times (in seconds) are used to indicate the time that it
+takes during each cycle to go from a corresponding zenith offset to
+the next. The 17 angles (in degrees) are the zenith offsets reached at
+the end of the corresponding time interval. The first and last of
+these offsets must be identical in order for the profile to be
+repeated.
+
+On the other hand, in pointed mode the spacecraft stares at a
+specified location in the sky identified by an RA and DEC provided by
+the user.
+
+The orbit simulator needs to know the spacecraft position in the
+entire interval of interest in order to properly calculate the
+attitude, therefore it must be capable of either reading in a file
+that contains the spacecraft ephemeris, or to calculate one on the
+fly.  The orbit simulator can handle three different types of
+ephemeris files: * NASA Flight Dynamic Facility (FDF) format, already
+used for missions such as RXTE.  * Satellite Tool Kit (STK) format,
+already in use for SWIFT.  * NORAD Two Line Elements (see
+http://celestrak.com/NORAD/elements), in which case the spacecraft
+position is calculated on the fly.
+
+Additionally, the initial spacecraft position in celestial (equatorial) coordinates
+should be provided by the user as an input parameter.
+
+The South Atlantic Anomaly region:
+
+The instrument high voltage power supplies are protected when the
+spacecraft traverses the South Atlantic Anomaly (SAA).  This
+occurs about 15% of the time.
+
+Gtorbsim has the capability to handle SAA constraints. The SAA region
+is approximated by a polygon, which is specified by the Longitude and
+Latitude of its vertices. It is passed to the program as an input file
+where the specification of the polygon is given.
+
+Earth limb:
+
+The Earth Limb Tracing maneuvering is an optional feature that can
+easily be enabled/disabled using the appropriate input parameter in
+gtorbsim. This maneuvering consists of tracing the Earth Limb if a
+target is Earth-occulted.  Targets are assumed to be occulted if their
+Earth angle (Angle between target and the Earth Limb) is smaller or at
+most equal to 30 degrees. Once the target is occulted by the Earth,
+the orbit simulator finds when is visible again, and where from the
+Earth Limb is coming out.  From the above it finds the angular
+separation between the in-occult and out-occult position.  Finally,
+the orbit simulator let the local z-axis to sweep equal angles in
+equal times during its motion along the Earth Limb.
+
+In general, when using TAKO Science timelines this step is not
+necessary since the TAKO avoids scheduling any target during
+occultation time. However, in special cases the occultation constraint
+in TAKO can be intentionally disabled to achieve some observational
+goal. Consequently, the orbit simulator calculates the occultation
+times, and then performs the Earth Limb tracing maneuvering. The
+occultation times are calculated using the same algorithm that TAKO
+uses.
+
+
+PARAMETERS
+
+Type of input {file or console} [file] : 
+This tells gtorbsim to take input from the console with the usual
+ftools prompting or to read the input from a file. 
+
+start_MJD [double]
+The start time for the time interval of interest must be specified in
+Modified Julian Date (MJD) using this parameter.  For time conversion
+you can refer to:
+http://heasarc.gsfc.nasa.gov/cgi-bin/Tools/xTime/xTime.pl
+
+stop_MJD [double]
+The stop time for the time interval of interest must be specified in
+Modified Julian Date (MJD) using this parameter.  For time conversion
+you can refer to:
+http://heasarc.gsfc.nasa.gov/cgi-bin/Tools/xTime/xTime.pl
+
+Timeline [string]
+This parameter encodes the desired pointing strategy. It can be either
+the path of the file to be parsed or a single command. In the case of
+single command, each portion of the command is separated by a "|". For
+instance, in the case of a simple survey with a rocking offset of +50,
+the command to be passed will be: Timeline = |SURVEY|+50.0| On the
+other hand, for a PROFILED survey the syntax should be as follows:
+Timeline = |PROFILED| 54301.0| 600 +35.0 1200 +25.0 1800 +15.0 ....|
+The first item specifies the survey as PROFILED, the second item must
+be the epoch or ROCKSTART in MJD format, then the rocking parameters
+are specified using the sequence TIME0 ANGLE0 TIME1 ANGLE1 TIME2
+ANGLE2 ... and so on. Times must be in seconds, and angles in
+degrees. Notice also, that times must be increasing, and that the
+first and last angles must be the same.  Finally, a command to simulate
+a pointed observation can be given as: Timeline = | POINTED | 234.98 |
+34.56 | where the first parameter after "POINTED" is the Right
+Ascension in degrees with values between 0.0 and 360.0, and the second
+is the Declination expressed in degrees between -90.0 and 90.0. Only
+empty spaces are allowed between each entry.  * FIXED SURVEY - the
+spacecraft does a sky survey with a specified offset with respect to
+its local zenith for one orbit, and then uses the opposite offset to
+another orbit, and so on.  * PROFILED SURVEY - the spacecraft observes
+in survey mode according to a specified profile consisting of 17
+increasing times and 17 zenith offsets * POINTED - the spacecraft
+stares at a specified location in the sky identified by RA and DEC.
+
+TLType [string]
+TLType specifies the type of timeline that must be parsed. Its
+possible values are: 
+* TAKO - for TAKO generated timelines 
+* ASFLOWN - to parse an AS-FLOWN timeline 
+* SINGLE - to use a single command, as explained above, to calculate
+  the spacecraft attitude. 
+
+Since the As-Flown timeline is simply a chronological list of events
+(pointing command or entry/exit SAA), each line of the timeline must
+be properly identified, and parsed. Furthermore, this timeline does
+not report any information about slew (start time, stop time, etc),
+the function assumes that slew will take place between the previously
+indicated sky location and the current one.
+
+EphemName [string]
+The keyword EphemName is used to specify the ephemeris file that the
+orbit simulator will use to propagate its position. Of course, the
+file must be specified with its full path.
+
+EphemFunc [string]
+EphemFunc is used to specify which function must be used to calculate
+the position. The orbit simulator is capable of using 3 different
+types of ephemeris: 
+* NASA Flight Dynamic Facility (FDF) format, previously used for missions
+  such as RXTE. In this case the value of EphemFunc is yyyy_eph.  
+* Satellite Tool Kit (STK) format, already in use for SWIFT. xyzll_eph
+  is the name of the function that is used to propagate the spacecraft
+  position.   
+* NORAD Two Line Elements (see http://celestrak.com/NORAD/elements),
+  in this case the spacecraft position is calculated on the fly. The
+  value for EphemFunc in this case is tlederive. The user may extract 
+  the Fermi TLE into a file from that web site.
+
+The orbit simulator needs to know the spacecraft position in the
+entire interval of interest in order to properly calculate the
+attitude, therefore it must be capable of either reading in a file
+that contains the spacecraft ephemeris, or of calculating this on
+the fly. As already mentioned, the orbit simulator can handle three
+different types of ephemeris files. In the case of FDF or STK
+ephemeris format, the corresponding functions (respectively yyyy_eph
+or xyzll_eph) simply reads the file and populates the EphemData
+structure:
+* MJD - vector for time stamp in MJD format
+* X - X component of the spacecraft position vector
+* Y - Y component of the spacecraft position vector
+* Z - Z component of the spacecraft position vector
+* Lat - vector for the Latitude in EC system
+* Lon - vector for the Longitude in EC system
+* Alt - vector for the Height in EC system
+* VelRA - vector for the velocity component in RA in EC system 
+* VelDEC - vector for the velocity component in RA in EC system
+* Period - Ephemerides Period, not used with the available Ephemerides formats
+* SemiMajorAxis - not used with the available Ephemerides formats
+* ent - number of entries in each vector
+
+In the case of Two Line Elements file, the corresponding function,
+tlederive, calls readTLE, which searches for the specific satellite
+(Fermi), and parses the Two Line Elements parameters into the
+structure atElemTle. The function then uses the Simplified General
+Perturbations Satellite Orbit Model 4 (SGP4) algorithm to calculate
+the satellite position in the interval of interest with the requested
+time resolution, and then populates the EphemData structure. The
+accuracy of SGP4 is 0.1o in both latitude and longitude from the
+ground. Notice also that TLE files should not be used for intervals
+greater than 30 days since the accuracy tends to degrade due to
+perturbations.
+
+
+Units [double]
+The Units keyword is used as conversion factor to km since not all
+ephemerides have the position calculated in the same way. In the case
+of tlederive or xyzll_eph the value for Units is 1, while in the case
+of yyyy_eph it is 10000.0.
+
+Resolution [double]
+This keyword is used to specify a parameter for the time resolution
+for the orbit simulator. Clearly, if yyyy_eph or xyzll_eph are used to
+calculate the spacecraft position, then the time resolution of the
+ephemeris file must be the same as the specified one. An error is
+generated otherwise. If Two Line Elements file is used, then the
+spacecraft position is propagated using the indicated time resolution.
+Notice that the resolution must be specified in minutes, or fraction
+of a minute.
+
+Initial_RA [double]
+This parameter specifies the initial RA spacecraft position. Its value
+must be in decimal degrees, and 0.0 < RA < 360.0.
+
+
+Initial_DEC [double]
+This parameter specifies the initial DEC spacecraft position. Its
+value must be in decimal degrees, -90.0 < DEC < 90.0
+
+OutPutFile [string]
+The OutPutFile option is used to specify the file name and path of the
+output spacecraft data file where all the data are written.
+
+
+OptFile [string]
+OptFile is an optional parameter used for debugging purposes. An ASCII
+version of the data is written to this file if it is specified. This
+is the only case where the absence of a parameter is not counted as an
+error.
+
+saafile [file]
+saafile gives the file name that contains the specification of the
+polygon, in terms of Latitude and Longitude, that defines the South
+Atlantic Anomaly (SAA) region.  Only LATSAA files are supported.
+
+The function saa is called to calculate the South Atlantic Anomaly
+(SAA) entry/exit. The SAA region is approximated by a polygon, which
+is specified by the Longitude/Latitude of its vertices. Currently,
+there are two different ways to indicate the polygon, and the above
+function is capable of handling both of them.  The algorithm used for
+the event times calculations is the same as the one used by TAKO. This
+routine determines if each ephemeris point is in or out of the SAA
+polygon. A filename should be passed which defines SAA polygon
+(longitude/latitude pairs).  In addition to an ephemeris point being
+in the SAA polynomial, the ephemeris point prior will also be included
+as in the SAA region, since somewhere between the two points is when
+the actual SAA is entered.  For this routine to work, the last
+latitude/longitude pair must be the same as the first.
+
+earth_avoid [int]
+This keyword is used to enable the Earth Limb tracing maneuvering (in
+which case the value of the parameters is 1) or disabled it (0). See
+below for further discussion.
+
+(chatter)
+This is an optional parameter used to control the verbosity level of
+the program. This keyword is only available in the file input
+mode. This is a hidden parameter. The default value is 2.
+
+(debug = no)
+Very similar to the previous keyword, the Debug option is used to
+control the output level of the program. This is a hidden
+parameter. The default value is no.
+
+(gui = no) 
+Graphical user Interface (GUI) mode activated if "yes" is
+specified. This is a hidden parameter. The default value is "no".
+
+(mode = ql)               
+Mode of automatic parameters. This is a hidden parameter. The default
+value is "ql".
+
+
+
+EXAMPLES
+
+
+The orbit simulator is designed so that its needed inputs can be
+passed either using the existing Fermi Science Tools infrastructure, 
+by answering a prompt or as a list in a command, or using an input file.
+For this reason, the very first input of the simulator is the type of input,
+which can either be "console" or "file".
+ 
+To be prompted for gtorbsim options type on the command line: 
+>gtorbsim 
+ 
+You will be prompted for parameter values. Beware that not all 
+parameters are prompted for: some of the parameter are "hidden".  If you 
+want to change one of the "hidden" parameters you should specify the 
+values on the command line or modify its mode by editing the parameter 
+file. For example if you do not want to overwrite the existing output 
+file you should type in the command line: 
+ 
+>gtorbsim clobber=no  
+ 
+An example of how to run the tool from the console for 55 days of
+survey mode operation is given below
+
+> gtorbsim
+Type of input {file or console} [console]
+Input Type is: console
+start MJD[54867]
+stop MJD[54923]
+Timeline Type {TAKO, ASFLOWN or SINGLE}[SINGLE]
+Timeline SINGLE Command[|SURVEY| +50.0 |]
+Ephemeris file name[] Fermi_TLE_09033.78481577.tle 
+Ephemeris function name[] tlederive
+Conversion factor to km[1]
+Time resolution in minutes[1]
+Initial RA[0]
+Initial DEC[0]
+OutPut File[] FT2_Fermi_TLE_09033.78481577.fits
+SAA file definition[] L_SAA_2008198.03
+
+
+
+The same task could be performed from an ini file like this:
+
+start_MJD = 54867
+stop_MJD = 54923
+TLType = SINGLE
+Timeline = |SURVEY|+50.0|
+EphemFunc = tlederive
+EphemName = Fermi_TLE_09033.78481577.tle
+Units = 1.0
+Resolution = 1
+Initial_RA = 0
+Initial_DEC = 0
+saafile = L_SAA_2008198.03
+OutPutFile = FT2_Fermi_TLE_09033.78481577.fits
+
+
+NOTE:
+
+To generate a realistic pointed mode observation a timeline generated by TAKO is needed. 
+The FSSC does not provide the user with that tool.
+If you need to run a realistic pointed mode observation, please contact the FSSC.
+
+
+LIST OF BUGS
+
+There are certain parameters in real spacecraft files that currently
+cannot be reasonably calculated by gtorbsim.  In these cases, that
+column is filled in with "NULL" in the output fits file.
+
+SEE ALSO 
+
+             gtobssim
+ 

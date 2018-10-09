@@ -1,0 +1,583 @@
+NAME
+    gtbin - Bins GBM or LAT event lists in time, energy, 
+    and/or space to produce light-curves, spectra, count cubes or
+    count maps, respectively.
+
+USAGE
+
+gtbin evfile scfile outfile algorithm ebinalg emin emax enumbins
+denergy ebinfile tbinalg tstart tstop dtime tbinfile snratio lcemin
+lcemax nxpix nypix binsz coordsys xref yref axisrot proj
+
+
+DESCRIPTION
+
+gtbin is a general purpose tool that performs one of three related 
+event-binning tasks:
+
+Spectra:
+Events can be binned into a single spectrum, resulting in a type-I PHA
+file, or into a time-sequenced series of spectra in a single FITS
+file, resulting in a type-II PHA file. For a description of OGIP
+standards PHA files refer to:
+http://heasarc.gsfc.nasa.gov/docs/heasarc/ofwg/docs/spectra/ogip_92_007/node5.html).
+The type-II pha files are intended primarily for GBM data analysis.
+
+The energy binning can be:
+Provided by a user-specified file created by a previous gtbin run or
+by the gtbindef tool (see the gtbindef help). You are also able to
+select linear or logarithmic energy binning by selecting the binning
+algorithm type using the "ebinalg" parameter (see the "PARAMETERS"
+section below).  When a single spectrum is created (type-I pha file),
+all events in the event file are used--a user-specified TSTART and
+TSTOP WILL BE IGNORED.
+The time binning (when a type II PHA file is created) can be: 
+Provided by a user-specified file created by a previous gtbin run 
+(or by gtbindef), or the user can select linear time bins as well as
+constant signal-to-noise ratio per time interval (see the "tbinalg"
+parameter description below). Note the TSTART and TSTOP parameters 
+will be ignored when spectral binning made is selected. 
+PHA1 bins all the event data and does not provide for time cuts. 
+
+Light Curves:
+The gtbin tool provides the option to generate light curves from event
+data. The time binning can be:
+(i) Determined by the user by specifying the time binning algorithm
+(tbinalg). The choices of binning are Linear binning (LIN), binning
+using a constant S/N ratio (SNR), or from an ascii file, 
+(ii) Provided by a user-specified file created by a previous gtbin run,
+or 
+(ii) Produced by gtbindef (tbinalg=FILE), in which case the user can
+select linear time bins definitions (tbinalg=LIN), or constant 
+signal-to-noise ratio per time bin (tbinalg=SNR. See the "tbinalg" 
+parameter description below).
+All the events between user specified TSTART and TSTOP are used.
+	  	 	 	 
+Count Map/Count Cube:
+Count maps (2-D images) or Count Cubes, a 3-D data cube (spatial +
+energy), can also be created by gtbin. The events are binned into
+user-specified rectangular pixels (see the description of the
+parameters "nxpix", "nypix", "binsz" in the PARAMETERS section
+below). For sky X-Y projected coordinates use algorithm=CMAP. This
+will produce a single two-dimensional spatial count map. A counts cube
+is created by stacking maps generated in projected sky coordinates
+using various energy slices using the algorithm=CCUBE.  This data cube
+is used in binned likelihood analysis. Many different projection
+methods are available (anything provided by the wcslib using the three
+letter identifiers): Aitoff [AIT], Zenithal equal- area [ZEA],
+Zenithal equidistant [ARC], Plate Carree [CAR], Sanson-Flamsteed
+[GLS], Mercator [MER], North-Celestial-Pole [NCP], Slant orthographic
+[SIN], Stereographic [STG], Gnomonic [TAN].  See Calabretta & Greisen
+2002, A&A, 395, 1077 for definitions of the projections. The resulting
+count map can then be viewed graphically, e.g., by fv or ds9
+(http://hea-www.harvard.edu/RD/ds9/).
+
+
+
+PARAMETERS
+
+General Parameters
+
+algorithm [string: CCUBE|CMAP|LC|PHA1|PHA2|HEALPIX]
+Indicates which specific type of binning to perform by indicating the
+type of output file produced. Legal values are CCUBE (a data cube
+with one or more count maps binned in sky X-Y projected coordinates
+with the z-axis corresponding to different energy bins), CMAP (count
+map binned in sky X-Y projected coordinates), LC (light curve binned
+in time only), PHA1 (spectrum binned in energy), PHA2 (spectra
+binned in energy for a series of time ranges/bins), and HEALPIX 
+(event binning algorithm. For small pixels sizes and large areas of 
+the sky, HEALPix is a superior binning scheme for convolutions with PSFs.
+See http://healpix.jpl.nasa.gov/html/intronode4.htm for more info).
+CCUBE and CMAP are not applicable to GBM TTE data since they do not
+have a spatial dependence.  PHA1 does not provide time cuts and thus
+bins all the event data. 
+ 	 	 
+evfile [file]
+Name of input event FITS file. This is the file containing the event
+data. 
+ 	 	 
+outfile [file]
+Name of output FITS file, whose contents are determined by the
+algorithm parameter: count cube, count map, light curve or spectra.
+ 	 	 
+scfile [file]
+Spacecraft data file containing information such as the spacecraft
+pointing as a function of time. This file could be generated by
+gtorbsim for simulated observations (see the gtorbsim help for further
+explanation) or more commonly it can be obtained from the FSSC
+website. Default is NONE.
+
+The spacecraft file is used to compute the exposure when binning the
+LAT data and is needed when creating spectra but is used in creating
+maps as well.  
+The exposure for the GBM data are computed using a different method
+and does not use a spacecraft data file, thus this parameter should be
+set to 'none'. 
+ 	
+Time binning parameters:
+ 	
+tbinalg [string: FILE|LIN|SNR]
+Indicates how the time bins will be specified. Legal values are FILE
+(bins will be read from a bin definition file), LIN (linearly uniform
+bins), and SNR (signal-to-noise ratio) per time bin. This parameter is
+only used if the output type requires binning in the time domain, that
+is, if the "algorithm" parameter is LC or PHA2.
+SNR binning has not yet been implemented. 
+
+tstart [double]
+The start time of the first interval for linearly uniform bins in
+mission elapsed time (MET) seconds. Only used if tbinalg is LIN and if
+the output type requires time binning (LC and PHA2, see tbinalg).
+Note that tstart is not applicable to PHA1 binning.
+ 	 	 
+tstop [double]
+The stop time of the last interval for linearly uniform bins in MET
+seconds. Only used if tbinalg is LIN and if the output type requires
+time binning (LC and PHA2, see tbinalg). 
+Note that tstop is not applicable to PHA1 binning.
+ 	 	 	 	  	 	 	 	 
+dtime [double]
+The width of linearly uniform bins in units of seconds. This option is
+used only if tbinalg is LIN and if the output type requires time
+binning (see tbinalg).
+ 	 	 
+tbinfile [file]
+The name of the optional time bin definition file. This file is 
+created by the gtbindef tool (see the gtbindef documentation).
+This option is used only if tbinalg is FILE and if the output 
+type requires time binning (see tbinalg).
+Note that tbinfile is applicable to PHA2 binning but not to
+PHA1 binning.
+
+snratio [double]
+Signal-to-noise ratio per time bin. This parameter is only used if
+tbinalg is SNR and if the output type requires time binning (see
+tbinalg). This option is not fully implemented yet.
+
+lcemin [double]
+Lower bound of energy range (in MeV) used to determine the bins in
+signal-to-noise binning. Note that all events in the input file will
+be binned, but only events that are in the range [lcemin, lcemax]
+contribute to the signal statistics for purposes of determining when
+to start a new time bin. This option is used only if SNR was selected
+in tbinalg and if the output type requires time binning (see tbinalg).
+Note that SNR binning has not yet been implemented. 
+       
+lcemax [double]
+Upper bound of energy range (in MeV) used to determine the bins in
+signal-to-noise binning. Note that all events in the input file will
+be binned, but only events that are in the range [lcemin, lcemax]
+contribute to the signal statistics for purposes of determining when
+to start a new bin. This option is used only if SNR was selected in
+tbinalg and if the output type requires time binning (see tbinalg).
+Note that SNR binning has not yet been implemented.
+
+Spatial binning Parameters:
+
+nxpix [integer]
+The number of pixels in the horizontal dimension in output image. This
+parameter is used only if the parameter "algorithm" is CMAP or CCUBE.
+ 	 	 
+nypix [integer]
+The number of pixels in the vertical dimension in output image. This
+parameter is used only if the parameter "algorithm" is CMAP or CCUBE.
+	 	 
+binsz [double]
+The number of degrees per pixel at the center of the image. This
+parameter is used only if the parameter "algorithm" is CMAP or CCUBE.
+	 	 
+xref [double]
+The horizontal position of the center of the image, either RA in
+celestial coordinates or l in galactic coordinates. This parameter is
+used only if the parameter "algorithm" is CMAP or CCUBE.
+	 	 
+yref [double]
+The vertical position of the center of the image, either DEC in
+celestial coordinates or b in galactic coordinates. This parameter is
+used only if the parameter "algorithm" is CMAP or CCUBE.
+	 	 
+axisrot [double]
+The rotation angle desired for the image. This parameter is used only
+if the parameter "algorithm" is CMAP or CCUBE.
+	 	 
+proj [string: AIT|ZEA|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN or any
+other three letter identifier recognized by wcslib]
+Coordinate projection (AIT|ZEA|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN); see
+Calabretta & Greisen 2002, A&A, 395, 1077 for definitions of the
+projections.  Must be AIT, ZEA, or CAR for auto full sky. This
+parameter is only used if the parameter "algorithm" is CMAP or CCUBE.
+	 	 
+coordsys [bool: CEL|GAL]
+Coordinate system. If you choose CEL you will be prompted for ra and
+dec (J2000), if you choose GAL you will be prompted for l and b
+coordinates. This parameter is used only if the parameter "algorithm"
+is CMAP or CCUBE.
+
+hpx_ordering_scheme [string: RING|NESTED]
+Ordering Scheme for the binning (see http://healpix.jpl.nasa.gov/html/intronode4.htm for more info)
+
+hpx_order [integer]
+Order of the map (integer between 0 and 12, included), corresponding to
+the lavel of pixelization or resolution.
+
+hpx_ebin [boolean]
+Apply energy binning to the count maps/cubes.
+
+	 	 
+Energy Binning Parameters
+
+ebinalg [string: FILE|LIN|LOG]
+Indicates how the energy bins will be specified. Legal values are FILE
+(bin boundaries will be read from a bin definition file), LIN 
+(linearly uniform bins are used), or LOG (logarithmically uniform bins). 
+This parameter is applicable only if the output type requires energy
+binning, that is, if the "algorithm" parameter is PHA1, PHA2, or CCUBE.
+ 	 	 	 	 
+emin [double]
+The lowest energy of the first interval for linearly or
+logarithmically uniform bins. Only used if ebinalg is LIN or LOG and
+if the output type requires energy binning (see ebinalg).
+Default is 30 MeV.
+ 	 	 
+emax [double]
+The highest energy of the last interval for linearly or
+logarithmically uniform bins. Only used if ebinalg is LIN or LOG and
+if the output type requires energy binning (see ebinalg).
+Default is 200 GeV.
+	 	 
+enumbins [integer]
+The number of bins for logarithmically uniform bins. Only used if
+ebinalg is LOG and if the output type requires energy binning (see
+ebinalg).
+ 	 	 
+denergy [double]
+The width of linearly uniform bins. Only used if ebinalg is LIN and if
+the output type requires energy binning (see ebinalg).
+ 	 	 
+ebinfile [file]
+The name of the energy bin definition file. Only used if ebinalg is
+FILE and if the output type requires energy binning (see ebinalg).
+
+
+Hidden parameters:
+
+(efield = ENERGY) [string]
+This is the name of the field containing the energy values for energy
+binning. The default value is consistent with the FERMI/LAT event file
+format.
+
+(tfield = TIME) [string]
+This is the name of the field containing the time values for time
+binning. The default value is consistent with the FERMI/LAT event file
+format.
+
+(rafield = RA) [string]
+The field in the input file which contains the RA (count maps
+only). The default value is the one used in FERMI/LAT event files.
+ 	 	 
+(decfield = DEC) [string]
+The field in the input file which contains the DEC (count maps
+only). The default value is the one used in FERMI/LAT event files.
+
+(evtable = EVENTS) [string]
+Event table extension name. The default value is consistent with the
+FERMI/LAT event file format.
+
+(sctable = SC_DATA) [string]
+Spacecraft data extension. The default value is consistent with the
+FERMI/LAT event file format.
+ 
+(chatter = 2)   [integer]
+This parameter fixes the output verbosity: no screen output (0),
+nominal screen output (2), maximum verbosity (4). 
+
+(clobber = yes)  [string]
+Overwrite or do not overwrite existing output files. 
+
+(debug = no)  [string]
+Activate debugging mode. The default value is "no". When debug is
+"no", all exceptions that are not caught and handled by individual
+tool-specific code are caught by a top-level exception handler that
+displays information about the exception and then exits. When debug is
+"yes", such exceptions are not caught by the top level code. Instead
+the tool produces a segmentation violation, which is more useful for
+debugging. When debugging mode is enabled, the tool produces more
+verbose output describing any errors or exceptions that are
+encountered.
+
+(gui = no) 
+Graphical user Interface (GUI) mode activated if "yes" is
+specified.
+
+(mode = ql)
+Mode of automatic parameters.
+
+        
+EXAMPLES
+
+The way that the parameters are passed follows the FTOOLs model: They
+could be passed by answering from a prompt, as a list in a command
+line, or by editing the parameter file. The command line option
+facilitates calling gtbin from a script.
+ 
+To be prompted for gtbin simply type in the command line: 
+
+>gtbin
+
+This will prompt for parameter values. Beware that not all parameters
+are prompted: some of the parameters are "hidden".  If you want to
+change one of the "hidden" parameter you should specify its value in
+the command line. For example if you do not want to overwrite the
+existing output file you should type in the command line:
+ 
+>gtbin clobber=no  
+ 
+Keep in mind that gtbin has several options to create different
+outputs, so some parameters are specific for each option. Some
+examples are given below to create count maps, light curves and
+spectra.
+
+
+Example 1: How to create a count map (CMAP):
+
+An example of how to run gtbin to create a count map is given below:
+
+
+> gtbin
+This is gtbin version ScienceTools-v9r33p0-fssc-20140317
+Type of output file (CCUBE|CMAP|LC|PHA1|PHA2|HEALPIX) [PHA2] CMAP
+Event data file name[] events_filtered.fits
+Output file name[] counts_map.fits
+Spacecraft data file name[NONE] 
+Size of the X axis in pixels[] 120
+Size of the Y axis in pixels[] 120
+Image scale (in degrees/pixel)[] 0.25
+Coordinate system (CEL - celestial, GAL -galactic) (CEL|GAL) [CEL] 
+First coordinate of image center in degrees (RA or galactic l)[] 193.98
+Second coordinate of image center in degrees (DEC or galactic b)[] -5.82
+Rotation angle of image axis, in degrees[0.] 
+Projection method e.g. AIT|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN:[AIT] 
+
+
+In this example the algorithm used is CMAP (algorithm = CMAP), which
+create a counts map. The input event FITS file name is:
+events_filtered.fits while the output FITS file name is:
+counts_map.fits). The coordinate system is celestial (coordsys
+= CEL) and the center of the map is at coordinates: RA=193.98,
+DEC=-5.82. The projection method is AIT (proj = AIT) and the data is
+not rotated about the image center (axisrot = 0). The dimensions of
+the map are 120x120 pixels (nxpix = 120, nypix = 120) with a scale of
+0.25 degrees/pixel (binsz = 0.25). The spacecraft data file is not needed
+to create a counts map.
+
+That last example can also be run in the command line:
+
+> gtbin evfile=events_filtered.fits \
+  scfile=NONE outfile=counts_map.fits \
+  algorithm=CMAP nxpix=120 nypix=120 binsz=0.25 coordsys=CEL \
+  xref=193.98 yref=-5.82 axisrot=0 proj=AIT
+
+Note: This has to be run on a single line and the \ is the Unix
+continuation character. 
+
+
+Example 2: How to create a counts map with different energy bins (CCUBE MAP):
+
+An example of how to run gtbin to create a count map for different
+energy bins is given below:
+
+> gtbin
+This is gtbin version ScienceTools-v9r33p0-fssc-20140317
+Type of output file (CCUBE|CMAP|LC|PHA1|PHA2|HEALPIX) [PHA2] CCUBE
+Event data file name[] _3C279_3C273_back_filtered.fits
+Output file name[] counts_map_3D.fits
+Spacecraft data file name[NONE] 
+Size of the X axis in pixels[] 120
+Size of the Y axis in pixels[] 120
+Image scale (in degrees/pixel)[] 0.25
+Coordinate system (CEL - celestial, GAL -galactic) (CEL|GAL) [CEL] 
+First coordinate of image center in degrees (RA or galactic l)[] 193.98
+Second coordinate of image center in degrees (DEC or galactic b)[] -5.82
+Rotation angle of image axis, in degrees[0.] 
+Projection method e.g. AIT|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN:[AIT] 
+Algorithm for defining energy bins (FILE|LIN|LOG) [LOG] 
+Start value for first energy bin in MeV[30] 
+Stop value for last energy bin in MeV[200000] 
+Number of logarithmically uniform energy bins[] 21
+
+In this example the algorithm used is CCUBE (algorithm = CCUBE), which
+creates a counts map for different energy bins. The input event FITS
+file name is: events_filtered.fits while the output FITS file name is:
+counts_map_3D.fits. In this case the energy bins are
+logarithmic (ebinalg = LOG) and 21 bins were selected (enumbins =
+21). The initial energy for the first bin is 30 MeV (emin = 30) while
+the last energy for the last bin is 200000 MeV (emax = 200000). The
+coordinate system is celestial (coordsys = CEL) and the center of the
+map is at coordinates: RA=193.98, DEC=-5.82. The projection method is
+AIT (proj = AIT) and the image is not rotated (axisrot = 0). The
+dimensions of the map are 120x120 pixels (nxpix = 120, nypix = 120) with a
+scale of 0.25 degrees/pixel (binsz = 0.25). 
+
+
+That last example could be also run in the command line:
+
+> gtbin evfile=events_filtered.fits \
+  scfile=NONE outfile=counts_map_3D.fits \
+  algorithm=CCUBE ebinalg=LOG emin=30 emax=200000 enumbins=21 \
+  nxpix=120 nypix=120 binsz=0.25 coordsys=CEL xref=193.98 yref=-5.82 \
+  axisrot=0 proj=AIT
+
+Note: This has to be run on a single line and the \ is the unix
+continuation character. 
+
+Example 3: How to create a light curve
+
+An example of how to run gtbin to create light curves is given below:
+
+> gtbin
+This is gtbin version ScienceTools-v9r33p0-fssc-20140317
+Type of output file (CCUBE|CMAP|LC|PHA1|PHA2|HEALPIX) [PHA2] LC
+Event data file name[]  events_filtered.fits
+Output file name[] lc.fits
+Spacecraft data file name[NONE] 
+Algorithm for defining time bins (FILE|LIN|SNR) [LIN] 
+Start value for first time bin in MET[] 252390000
+Stop value for last time bin in MET[] 254966400
+Width of linearly uniform time bins in MET[] 20000
+
+In this case the event FITS input file is called
+events_filtered.fits, the output file with the
+light curve is called lc.fits . The algorithm used is LC,
+which creates the light curve (algorithm = LC). The time bins are
+linear (tbinalg = LIN) with steps of 20000 MET seconds (dtime =
+20000). The start time is 252390000 MET seconds (tstart = 252390000)
+and the stop time is 254966400 MET seconds (tstop = 254966400).
+Note that the valid range of MET values can be obtained from the
+event file FITS header, e.g. fkey prints events FITS TSTARTS or 
+similar for TSTOP. The equivalent UT dates are contained in
+ the "DATE-OBS" keyword, which can be similarly obtained.
+Since the output is not an image, but rather a table of values, you
+may look at it with fv
+(http://heasarc.gsfc.nasa.gov/lheasoft/ftools/fv/) instead of ds9.
+
+That last example could be also run in the command line in this way:
+
+> gtbin evfile=events_filtered.fits \
+  scfile=NONE outfile=lc.fits \
+  algorithm=LC tbinalg=LIN tstart=252390000 tstop=254966400 \
+  dtime=20000
+
+Note: This has to be run on a single line and the \ is the unix
+continuation character. 
+
+Example 4: How to create a light curve with GBM data:
+
+An example of how to run gtbin to create a light curve with the GBM
+data is given below:
+
+prompt> gtbin  
+This is gtbin version ScienceTools-v9r33p0-fssc-20140317
+Type of output file (CCUBE|CMAP|LC|PHA1|PHA2|HEALPIX) [PHA2] LC
+Event data file name [ ] : GLG_TTE_N0_BN080104514_V01.FIT
+Output file name [ ] : GRB_080104A_N0_lc.fit  
+Spacecraft data file name [NONE] :  
+Algorithm for defining time bins  [LIN] :  
+Start value for first time bin [ ] : 221142009  
+Stop value for last time bin [ ] : 221142055  
+Width of linearly uniform time bins [ ] :  0.25
+
+In this example the algorithm to create a light curve is selected
+(algorithm = LC). The input event data file is called
+GLG_TTE_N0_BN080104514_V01.FIT (evfile =
+GLG_TTE_N0_BN080104514_V01.FIT), which is a GBM time-tagged event data
+file. The output file name is GRB_080104A_N0_lc.fit (outfile =
+GRB_080104A_N0_lc.fit). A spacecraft file is not needed. The start and
+stop time of the bins are 221142009 and 221142055 MET seconds
+respectively (tstart = 221142009, tstop =221142055). Since linear bins
+were selected (tbinalg = LIN), gtbin prompts for the width of the bins
+in seconds; here 0.25 seconds bin is selected (dtime = 0.25).  Since
+the output is not an image, but rather a table of values, you may examine
+it with fv (http://heasarc.gsfc.nasa.gov/lheasoft/ftools/fv/).
+
+
+Example 5: How to create a spectrum averaged over a single time interval:
+
+An example of how to run gtbin to create a spectrum (PHA1):
+
+> gtbin
+This is gtbin version ScienceTools-v9r33p0-fssc-20140317
+Type of output file (CCUBE|CMAP|LC|PHA1|PHA2|HEALPIX) [PHA2] PHA1
+Event data file name [ ] : events.fits
+Output file name [ ] : pha1.fits
+Spacecraft data file name [ ] : SC00.fits
+Algorithm for defining energy bins <FILE|LIN|LOG> [LOG] : 
+Start value for first energy bin in MeV [30] : 
+Stop value for last energy bin in MeV [200000] : 
+Number of logarithmically uniform energy bins [ ] : 20
+
+In this example the energy spectra of the quasar 3C279 is
+generated. Previously the tool gtselect (see the gtselect
+documentation) was run in order to select a small region (of 4 degrees
+radius) of the sky around the 3C279 coordinates (193.98, -5.82) before
+running gtbin. An energy spectra between 30 MeV (emin = 30) and 200000
+MeV (emax = 200000) of 20 (enumbins = 20) logarithmic bins (ebinalg =
+LOG) is produced. You can examine the spectra using, for example, the
+fv tool
+(http://heasarc.gsfc.nasa.gov/lheasoft/ftools/fv/).
+
+
+Example 6: How to create set of spectra over multiple time bins:
+
+An example of how to run gtbin to create set of spectra over multiple
+time bins (type-II PHA) is given below:
+
+> gtbin
+This is gtbin version ScienceTools-v9r33p0-fssc-20140317
+Type of output file (CCUBE|CMAP|LC|PHA1|PHA2|HEALPIX) [PHA2]
+Event data file name [ ] : events.fits
+Output file name [ ] : pha2.fits
+Spacecraft data file name [ ] : SC00.fits
+Algorithm for defining energy bins <FILE|LIN|LOG> [LOG] : 
+Start value for first energy bin in MeV [30] : 
+Stop value for last energy bin in MeV [200000] : 
+Number of logarithmically uniform energy bins [ ] : 20
+Algorithm for defining time bins <FILE|LIN|SNR> [LIN] : 
+Start value for first time bin in MET [ ] : 252390000
+Stop value for last time bin in MET [ ] : 254966400
+Width of linearly uniform time bins in MET [ ] : 20000
+
+In this example a PHA2 file is created with spectra of the quasar
+3C279 for every 20000 seconds.  Spectra between 30 MeV (emin = 30) and
+200000 MeV (emax = 200000) with 20 (enumbins = 20) logarithmic bins
+(ebinalg = LOG) is produced. Spectra are created for every 20000
+second interval (tbinalg = LIN and dtime = 20000), starting from
+252390000 MET seconds (tstart = 252390000) and ending at 254966400 MET
+seconds (tstop = 254966400). The user should be aware that if the last
+time time does not span the full 20000 seconds then the last time bin
+may contain much less than what is requested. You may examine the
+spectra produced using the fv tool
+(http://heasarc.gsfc.nasa.gov/lheasoft/ftools/fv/).
+
+
+
+KNOWN BUGS
+
+
+The signal-to-noise binning is not fully implemented. When using
+constant signal-to-noise binning (tbinalg = SNR) currently the
+parameters lcemin and lcemax are ignored. It is not possible to enter
+the background spectra file for the SNR option yet.
+
+Because gtbin has many "conditional" parameters (parameters that are
+used for some types of output and not for others) the order of
+parameter prompts does not match the order for parameters supplied
+positionally on the command line. When using positional parameters it
+is necessary to supply all parameters, even those that are not used in
+the current tool mode.
+
+SEE ALSO
+
+    * gtbindef
+
+    * gtselect

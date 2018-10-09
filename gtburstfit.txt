@@ -1,0 +1,258 @@
+NAME    
+        gtburstfit - Analyzes burst light curves by applying a
+        Bayesian algorithm to determine the optimum set of blocks to
+        follow the burst profile shape, then optionally fitting a
+        model to the data using the Bayesian Block definitions to
+        determine the number of model components and initial values
+        for the model parameters.
+ 
+USAGE
+
+        gtburstfit evfile fitguess amp time0 tau1 tau2 bckgnd
+
+DESCRIPTION
+
+The gtburstfit tool analyzes burst light curves by applying a Bayesian
+algorithm to determine the optimum set of blocks to follow the burst
+profile shape; blocks may also be used by gtburstfit to construct a
+pulse model, which gtburstfit can fit to the data.
+
+The model used to fit the data is a constant background added to a sum
+of terms of the form:
+
+    A * exp(tau1 / (t - time0) + (t - time0) / tau2),                (1)
+
+where A is the amplitude of the pulse, time0 is the time of the pulse,
+tau1 is the "Rise Coefficient", and tau2 is the "Decay Coefficient" of
+the pulse.
+  
+The number of these terms is determined automatically by gtburstfit by
+looking for peaks and valleys in the Bayesian block definitions, and
+using these to determine the number of peaks detected, and their
+approximate positions, heights and widths.
+
+Gtburstfit uses as input a time binned data file. The original event
+data file can be obtained from the FERMI Science Support Center (FSSC)
+website and can be binned with gtbin using the light curve (LC) option
+(see the gtbin documentation).
+
+Gtburstfit's output includes the values of the Amplitude, time of the
+pulse, "Rise Coefficient" and "Decay Coefficient" for each pulse,
+background coefficient, and Chi Square of the fit. By default the tool
+displays a plot showing the data, the Bayesian Blocks, which were
+created for the data, and the results of the fit. The user may zoom in
+the resulting plot using the left mouse button. The right mouse button
+may be used to add new peaks to the model, which may be included on
+subsequent runs of the tool (when gui=yes and fitguess=calc only).
+
+PARAMETERS
+
+evfile [file]
+Name of input event file. Currently, only binned events (binned light
+curves in a RATE FITS extension) are supported, for both GBM and LAT
+data. The original events file, containing the event data can be
+obtained from the FSSC website. Those events file can be binned using
+the gtbin tool (see the gtbin documentation for further explanation).
+
+fitguess [string: AUTO|MAN|CALC]
+This parameter sets how the initial values for the fit be determined.
+Currently there are three options: AUTO, MAN, CALC.  In the CALC
+option the initial values for the fit process are taken from the
+Bayesian Blocks. By definition, any peak in the Bayesian Block profile
+is statistically significant, so the model will include one pulse for
+each block peak. For each pulse, the initial value of the amplitude
+(A) is determined from the height of the block in the peak above the
+background. The time of the pulse (time0) is the start point of the
+block peak. The rise coefficient (tau1) and decay cofficient (tau2)
+are both one half the width of the block peak.  In the MAN option, the
+initial guess for the fit of the amplitude (A), the time of the pulse
+(time0), the rise coefficient (tau1), decay coefficient (tau2), and
+background (bckgnd) are set manually using the tool parameters of the
+same names. A limitation of this mode is that only one pulse may be
+included in the model.  The AUTO option is the same as the CALC option
+unless the GUI is enabled (gui=yes). In GUI mode, one can re-run the
+tool interactively multiple times by clicking the "Run" button. When
+fitguess=AUTO, the first time the tool is run the behavior is the same
+as when fitguess=CALC. However, after the run, one can move the peak
+parameters (burst time, amplitude and decay time) by clicking and
+dragging with the left mouse button. Clicking with the right mouse
+button will add a new pulse to the model. The first right click sets
+the pulse start time (time0), the second the peak position (amplitude
+and tau1) and the third the decay (tau2). Then by clicking the Run
+button, one may re-run the tool with these changes to the initial
+values. The default value of "fitguess" is AUTO.
+
+amp = 0  [double]
+This is the amplitude (A) of pulse. See formula (1) in the DESCRIPTION
+section of this document.
+
+time0 = 0 [double]
+This is the start time (time0) of pulse. See formula (1) in the
+DESCRIPTION section of this document.
+
+tau1 = 0 [double]
+This is the rise coefficient (tau1). See formula (1) in the
+DESCRIPTION section of this document.
+
+tau2 = 0 [double]
+This is the decay coefficient. See formula (1) in the DESCRIPTION
+section of this document.
+
+bckgnd = 0 [double] 
+This is the constant background rate. 
+
+(evtable = RATE) [string]
+Event table extension name. This is a hidden parameter. The default value is "RATE".
+	 	 
+(fit = YES) [bool]
+If yes, causes gtburstfit to fit parameters to minimize Chi Square for
+the deviation from the fit model. If no, only the definitions of
+Bayesian blocks found by the tool will be presented. This is a hidden
+parameter. The default value is "yes".
+ 	 	 
+(plot = YES) [bool]
+If yes, causes gtburstfit to display a plot showing the data, the
+Bayesian Blocks, which were created for the data, and the results of
+the fit. (The fit will only be displayed if the fit parameter is set
+to YES). This is a hidden parameter. The default value is "yes".
+ 	 	  	
+(ncpprior = 9.) [double]
+This number represents a heuristic bias against creating new blocks,
+used to allow some control over the number of blocks created. If too
+many (too few) blocks are being created for a given set of data, the
+user may increase (decrease) this parameter value. This is a hidden
+parameter. The default value is 9.
+ 	 	 
+(plotres = no) [bool]
+If yes the tool displays the plot of the residuals. This is a hidden
+parameter. The default value is no.
+
+title = DEFAULT [string]
+This parameter allows the user to include a title for the plot. This
+is a hidden parameter. The default value is "DEFAULT".
+
+(chatter)  
+This parameter fixes the output verbosity: no screen output (0),
+nominal screen output (2), maximum verbosity (4). The default value is
+2.
+
+(clobber = yes)        
+If true, an existing file of the same name will be overwritten. This
+is a hidden parameter. The default value is "yes'.
+
+(debug = no)   
+Activate debugging mode. The default value is "no". When debug is
+"no", all exceptions that are not caught and handled by individual
+tool-specific code are caught by a top-level exception handler that
+displays information about the exception and then exits. When debug is
+"yes", such exceptions are not caught by the top level code. Instead
+the tool produces a segmentation violation, which is more useful for
+debugging. When debugging mode is enabled, the tool produces more
+verbose output describing any errors or exceptions that are
+encountered.
+
+(gui = no) 
+Graphical user Interface (GUI) mode activated if "yes" is
+specified. The default value is "no".
+
+(mode = ql)
+Mode of automatic parameters. The default value is "ql". 
+        
+EXAMPLES
+
+The way that the parameters are passed follows the FTOOLs model: They
+could be passed by answering from a prompt, as a list in a command
+line, or by editing the parameter file.
+
+To be prompted for gtburstfit simply type in the command line: 
+
+>gtburstfit
+
+This will prompt for parameter values. Beware that not all parameters
+are prompted: some of the parameter are "hidden".  If you want to
+change one of the "hidden" parameter you have to specify its value in
+the command line. For example if you want to include a title in your
+plot you may set the parameter title like this in the command line:
+
+>gtburstfit title=MyPLOT
+
+where "MyPLOT" will be the title of your plot.
+  
+An example of how to run gtburstfit using the AUTO option is given below:
+
+> gtburstfit
+Name of file containing events [] : LAT_090119205_v4_filtered_lc.fits
+How will initial values for fit be determined <AUTO|MAN|CALC> [AUTO] : 
+After initial guess but before any fitting, reduced chi square is 0.83314586
+Parameters are:
+Peak 1:
+     Amplitude = 1.683346795914409
+         Time0 = 254033756.004999995231628
+          Tau1 = 2.020000010728836
+          Tau2 = 2.020000010728836
+    Background = 0.000863557036068
+
+Minuit abnormal termination. (No convergence?)
+After fit, reduced chi square is 0.31889256
+Parameters are:
+Peak 1:
+     Amplitude = 1.269671380418241
+         Time0 = 254033756.004999995231628
+          Tau1 = 7.261440266831805
+          Tau2 = 0.377458851261102
+    Background = 0.000471566148087
+
+Bayesian Blocks computed for this data set are:
+Interval                                  Average Counts
+[254033756.00500000, 254033757.83500001]     0.00000000
+[254033757.83500001, 254033758.21500000]     1.68421035
+[254033758.21500000, 254033764.00500000]     0.00172711
+
+
+An example of how to run the tool using the MAN option is given below:
+ 
+> gtburstfit
+This is gtburstfit version N/A
+Name of file containing events [] : LAT_090119205_v4_filtered_lc.fits
+How will initial values for fit be determined <AUTO|MAN|CALC> [AUTO] : MAN
+Amplitude of pulse (0.:) : 15
+Time of pulse [0] : 254033755.025
+Rise coefficient  (0.:) [0] : 1
+Decay coefficient  (0.:) [0] : 1
+Constant background rate (0.:) [0] : 0.016124874850956
+After initial guess but before any fitting, reduced chi square is 2.85820198
+Parameters are:
+Peak 1:
+     Amplitude = 15.000000000000000
+         Time0 = 254033755.025000005960464
+          Tau1 = 1.000000000000000
+          Tau2 = 1.000000000000000
+    Background = 0.016124874850956
+
+Minuit abnormal termination. (No convergence?)
+After fit, reduced chi square is 0.69152648
+Parameters are:
+Peak 1:
+     Amplitude = 2.712350619170892
+         Time0 = 254033752.025000005960464
+          Tau1 = 1.174769123251601
+          Tau2 = 2.142269731290571
+    Background = 0.031573757914810
+
+
+KNOWN BUGS
+
+When using fitguess=AUTO and running gtburstfit multiple times in the
+GUI mode (gui=yes), the values of the rise and decay coefficients tau1
+and tau2 are not correctly computed from the "Pulse start", "Peak" and
+"Decay" markers on the graph. This has the effect that if one re-runs
+the tool without making any changes, the initial guesses for tau1 and
+tau2 for the next run will not be the same as the final values from
+the previous run.
+
+
+SEE ALSO
+
+
+*gtbin
+

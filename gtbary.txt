@@ -1,0 +1,139 @@
+
+    gtbary - Performs barycentric or geocentric corrections to photon
+             arrival times.
+
+USAGE
+    
+    gtbary evfile scfile outfile ra dec
+
+DESCRIPTION
+
+    This tool performs barycentric or geocentric corrections to photon
+    arrival times in input event file(s) using a Fermi orbit file. The
+    heart of this executable is taken from axBary by Arnold Rots at
+    SAO. Minimal modifications were made to axBary to work with Fermi
+    orbit files. This is also equivalent to the barycorr tool in
+    HEADAS.
+
+    Upon startup, the user will be prompted for the input file whose
+    times will be corrected, the orbit file to use for the correction,
+    the output file (which may be the same as the input file) and the
+    Right Ascension (RA) and Declination (Dec) of the source (pulsar)
+    location from which to correct the photon arrival times.
+
+    Three additional ancillary files are needed by gtbary/axBary
+    in order to perform the correction: JPLEPH.405, leapsec.fits
+    and tai-utc.dat. The program looks for these files in the
+    directory given by the TIMING_DIR environment variable. For
+    the moment, these files are included in the data subdirectory
+    of the timeSystem package.
+
+    In the event that an error occurs during the correction, the
+    input file will be left in its original state, even if the
+    correction is being performed in place. When debugging is enabled
+    (by typing debug=yes on the command line), a temporary file
+    containing the state of the correction when the error occurred will
+    be left for investigative purposes. The temporary file name is
+    identical to the output file name with an added suffix of .tmp.
+
+PARAMETERS
+
+evfile [file name]
+    Name of input event file
+
+scfile [file name]
+    Name of input spacecraft data file
+
+outfile [file name]
+    Name of output file. If the same as evfile, the arrival time
+    correction will be performed in situ in the input file (which
+    must therefore be writable).
+
+ra [double]
+    Right Ascension of point source in degrees for which to perform
+    the arrival time correction.
+
+dec [double]
+    Declination of point source in degrees for which to perform the
+    arrival time correction.
+
+(tcorrect = BARY) [enumerated string (GEO|BARY)]
+    Arrival time correction to apply. Choose BARY to apply the
+    barycentric correction, and GEO the geocentric correction.
+
+(solareph = JPL DE405) [enumerated string (JPL DE200|JPL DE405)]
+    Solar system ephemeris for the barycentric correction.
+
+(angtol = 1.e-8) [double]
+    Angular tolerance in degrees in comparison of two source
+    positions, one for which the barycentric correction is performed,
+    and another given by RA_NOM and DEC_NOM header keyword of an
+    event file to which the barycentric correction has already been
+    applied. This parameter only has effect if the barycentric
+    correction has been applied to an input event data file.  If the
+    two source positions are separate from each other by this amount
+    or less, then they will be considered to be the same position. 
+    Otherwise an error will be generated.  The sign of the parameter
+    value is ignored.  For example, setting angtol=-1.0 results in
+    giving angular tolerance of 1 degree.
+
+(timefield = TIME) [string]
+    Name of the field containing the time values for temporal
+    analysis.
+
+(sctable = SC_DATA) [string]
+    Name of the FITS table containing the spacecraft data.
+
+(leapsecfile = DEFAULT) [file name]
+    Name of the file containing the name of the leap second table, in
+    OGIP-compliant leap second table format. If leapsecfile is the
+    string DEFAULT, the default leap-second file (leapsec.fits),
+    which is distributed with the extFiles package, will be used.
+
+(chatter = 2) [integer, min=0, max=4]
+    This parameter fixes the output verbosity: no screen output (0),
+    nominal screen output (2), maximum verbosity (4).
+
+(clobber = yes) [boolean]
+    Overwrite or do not overwrite existing output files.
+
+(debug = no) [boolean]
+    Activate debugging mode. When debug is "no", all exceptions that
+    are not caught and handled by individual tool-specific code are
+    caught by a top-level exception handler that displays information
+    about the exception and then exits. When debug is "yes", such
+    exceptions are not caught by the top level code. Instead the tool
+    produces a segmentation violation, which is more useful for
+    debugging. When debugging mode is enabled, the tool produces more
+    verbose output describing any errors or exceptions that are
+    encountered.
+
+(gui = no) [boolean]
+    Graphical user Interface (GUI) mode activated if "yes" is
+    specified.
+
+(mode = ql) [string]
+    Mode of automatic parameters.
+
+EXAMPLES
+
+    In the following example, gtbary processes the event file
+    fakepulsar_event.fits using the spacecraft data file named
+    simscdata_1week.fits for a pulsar located at the right ascension
+    of 111.11 and the declination of 22.22.
+
+        > gtbary evfile=fakepulsar_event.fits scfile=simscdata_1week.fits \
+            outfile=fakepulsar_event_bary.fits ra=111.11 dec=22.22
+
+    When successful, gtbary creates an output file
+    (fakepulsar_event_bary.fits in the above example) that is ready to
+    be given to a non-Fermi temporal analysis tool that is designed to
+    analyze an event list in the HEASARC standard temporal file
+    format.
+
+KNOWN BUGS
+
+SEE ALSO
+
+    barycorr, faxbary, timeconv, barytime, rosbary, aebarycen,
+    earth2sun, fxbary

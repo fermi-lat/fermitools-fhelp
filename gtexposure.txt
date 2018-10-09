@@ -1,0 +1,76 @@
+GTEXPOSURE:
+
+Given a counts light curve prepared using gtbin for a specific
+location on the sky, this tool computes the exposure (cm2-s)
+associated with each time bin,allowing for a light curve in photons/s
+to be computed.
+
+If the light curve file contains DSS keywords from gtselect that
+describe an acceptance cone on the sky from which the events are
+extracted, then this tool will perform an aperture correction, i.e.,
+it will adjust the exposure as a function of energy to account for the
+tails of the psf that lie outside the acceptance cone.
+
+In order to provide reasonably accurate flux estimates for broad
+energy bands, the exposure must be weighted by a function that
+approximates the spectral shape of the target source. This function
+may either be specified using an XML model definition such as those
+used with gtlike, or it may be given as a simple spectral index.
+
+Usage: gtexposure infile scfile irfs srcmdl target specin ra dec rad
+apcorr emin emax enumbins
+
+General Parameters
+
+infile [file]
+Input count-space light curve file produced using gtbin.
+              
+scfile [file]
+spacecraft pointing history file, obtained from the FSSC LAT data server.
+              
+irfs [string]
+Reference to the LAT Instrument response functions e.g. P6_V3_DIFFUSE.
+              
+srcmdl = none [string]
+XML file containing the Likelihood model for the target source.
+              
+target [string]
+The name of the target source in the XML model file.
+              
+specin = -2.1 [double]
+Photon spectral index to use for weighting the exposure as a function
+of energy. If srcmdl=none and target="", then this is used in lieu of
+the full Likelihood model.
+              
+(ra = 0) [double]
+Right Ascension (degrees J2000) of the source (or extraction
+region). This is used only if infile lacks DSS keywords describing the
+acceptance cone.
+              
+(dec = 0) [double]
+Declination (degrees J2000) of the source (or extraction region). This
+is used only if infile lacks DSS keywords describing the acceptance
+cone.
+              
+(rad = 180) [double]
+Radius (degrees) of the extraction region. This will be used for the
+aperture correction.
+              
+(apcorr = yes)
+Flag to apply aperture-correction. Users may wish to disable this to
+determine the full exposure as a function of time at a given location.
+              
+(emin = 100)
+Minimum energy (MeV) over which to integrate the exposure. This is
+used only if infile lacks DSS keywords describing the energy range of
+the events.
+              
+(emax = 2e5)
+Maximum energy (MeV) over which to integrate the exposure. This is
+used only if infile lacks DSS keywords describing the energy range of
+the events.
+              
+(enumbins = 30)
+Number of energies, logrithmically-spaced, at which to evaluate the
+exposure for the weighted integral. 30 over 4.5 decades in energy
+should be sufficient for most spectral shapes.
