@@ -4,7 +4,7 @@ NAME
               a given pulsar and instant of time.
 
 USAGE
-    
+
     gtephem psrdbfile psrname reftime timeformat timesys
 
 DESCRIPTION
@@ -121,7 +121,7 @@ PULSAR EPHEMERIS DATABASE FILE
     A pulsar ephemeris database file is a FITS file or a text file in
     a Fermi-specific format, and contains a set of pulsar ephemerides
     to be used in a temporal analysis of Fermi data. When so
-    specified, the pulsar analysis tools in Fermi Science Tools load
+    specified, the pulsar analysis tools in Fermitools load
     pulsar ephemerides from pulsar ephemeris database files, and use
     them in their tasks.  A pulsar ephemeris database file can be
     created, filtered, and combined by the gtpulsardb tool. Also,

@@ -1,76 +1,109 @@
-GTEXPOSURE:
+NAME
 
-Given a counts light curve prepared using gtbin for a specific
-location on the sky, this tool computes the exposure (cm2-s)
-associated with each time bin,allowing for a light curve in photons/s
-to be computed.
+    gtexposure - Compute exposure for a light curve
 
-If the light curve file contains DSS keywords from gtselect that
-describe an acceptance cone on the sky from which the events are
-extracted, then this tool will perform an aperture correction, i.e.,
-it will adjust the exposure as a function of energy to account for the
-tails of the psf that lie outside the acceptance cone.
+USAGE
 
-In order to provide reasonably accurate flux estimates for broad
-energy bands, the exposure must be weighted by a function that
-approximates the spectral shape of the target source. This function
-may either be specified using an XML model definition such as those
-used with gtlike, or it may be given as a simple spectral index.
+    gtexposure infile scfile irfs srcmdl target specin ra dec rad
+    apcorr emin emax enumbins
 
-Usage: gtexposure infile scfile irfs srcmdl target specin ra dec rad
-apcorr emin emax enumbins
+DESCRIPTION
 
-General Parameters
+    Given a counts light curve prepared using gtbin for a specific
+    location on the sky, this tool computes the exposure (cm2-s)
+    associated with each time bin,allowing for a light curve in photons/s
+    to be computed.
 
-infile [file]
-Input count-space light curve file produced using gtbin.
-              
-scfile [file]
-spacecraft pointing history file, obtained from the FSSC LAT data server.
-              
-irfs [string]
-Reference to the LAT Instrument response functions e.g. P6_V3_DIFFUSE.
-              
-srcmdl = none [string]
-XML file containing the Likelihood model for the target source.
-              
-target [string]
-The name of the target source in the XML model file.
-              
-specin = -2.1 [double]
-Photon spectral index to use for weighting the exposure as a function
-of energy. If srcmdl=none and target="", then this is used in lieu of
-the full Likelihood model.
-              
-(ra = 0) [double]
-Right Ascension (degrees J2000) of the source (or extraction
-region). This is used only if infile lacks DSS keywords describing the
-acceptance cone.
-              
-(dec = 0) [double]
-Declination (degrees J2000) of the source (or extraction region). This
-is used only if infile lacks DSS keywords describing the acceptance
-cone.
-              
-(rad = 180) [double]
-Radius (degrees) of the extraction region. This will be used for the
-aperture correction.
-              
-(apcorr = yes)
-Flag to apply aperture-correction. Users may wish to disable this to
-determine the full exposure as a function of time at a given location.
-              
-(emin = 100)
-Minimum energy (MeV) over which to integrate the exposure. This is
-used only if infile lacks DSS keywords describing the energy range of
-the events.
-              
-(emax = 2e5)
-Maximum energy (MeV) over which to integrate the exposure. This is
-used only if infile lacks DSS keywords describing the energy range of
-the events.
-              
-(enumbins = 30)
-Number of energies, logrithmically-spaced, at which to evaluate the
-exposure for the weighted integral. 30 over 4.5 decades in energy
-should be sufficient for most spectral shapes.
+    If the light curve file contains DSS keywords from gtselect that
+    describe an acceptance cone on the sky from which the events are
+    extracted, then this tool will perform an aperture correction, i.e.,
+    it will adjust the exposure as a function of energy to account for the
+    tails of the psf that lie outside the acceptance cone.
+
+    In order to provide reasonably accurate flux estimates for broad
+    energy bands, the exposure must be weighted by a function that
+    approximates the spectral shape of the target source. This function
+    may either be specified using an XML model definition such as those
+    used with gtlike, or it may be given as a simple spectral index.
+
+PARAMETERS
+
+    infile [file]
+    Input count-space light curve file produced using gtbin.
+
+    scfile [file]
+    spacecraft pointing history file, obtained from the FSSC LAT data server.
+
+    irfs [string]
+    Reference to the LAT Instrument response functions e.g. P6_V3_DIFFUSE.
+
+    srcmdl = none [string]
+    XML file containing the Likelihood model for the target source.
+
+    target [string]
+    The name of the target source in the XML model file.
+
+    specin = -2.1 [double]
+    Photon spectral index to use for weighting the exposure as a function
+    of energy. If srcmdl=none and target="", then this is used in lieu of
+    the full Likelihood model.
+
+    (ra = 0) [double]
+    Right Ascension (degrees J2000) of the source (or extraction
+    region). This is used only if infile lacks DSS keywords describing the
+    acceptance cone.
+
+    (dec = 0) [double]
+    Declination (degrees J2000) of the source (or extraction region). This
+    is used only if infile lacks DSS keywords describing the acceptance
+    cone.
+
+    (rad = 180) [double]
+    Radius (degrees) of the extraction region. This will be used for the
+    aperture correction.
+
+    (apcorr = yes)
+    Flag to apply aperture-correction. Users may wish to disable this to
+    determine the full exposure as a function of time at a given location.
+
+    (emin = 100)
+    Minimum energy (MeV) over which to integrate the exposure. This is
+    used only if infile lacks DSS keywords describing the energy range of
+    the events.
+
+    (emax = 2e5)
+    Maximum energy (MeV) over which to integrate the exposure. This is
+    used only if infile lacks DSS keywords describing the energy range of
+    the events.
+
+    (enumbins = 30)
+    Number of energies, logrithmically-spaced, at which to evaluate the
+    exposure for the weighted integral. 30 over 4.5 decades in energy
+    should be sufficient for most spectral shapes.
+    
+    (chatter = 2) [integer]
+         This parameter fixes the output verbosity: no screen output (0),
+         nominal screen output (2), maximum verbosity (4). Default is "2".
+
+    (clobber = yes) [boolean]
+         If true, an existing file of the same name will be overwritten.
+         Default is "yes".
+
+    (debug = no) [boolean]
+         Activate debugging mode. Default is "no". When debug is "no", all
+         exceptions that are not caught and
+         handled by individual tool-specific code are caught by a top-level
+         exception handler that displays information about the exception and
+         then exits. When debug is "yes", such exceptions are not caught by the
+         top level code. Instead the tool produces a segmentation violation,
+         which is more useful for debugging. When debugging mode is enabled,
+         the tool produces more verbose output describing any errors or
+         exceptions that are encountered.
+
+    (gui = no) [boolean]
+         Graphical User Interface (GUI) mode is activated if set to "yes".
+         Default is "no".
+
+    (mode = ql) [string]
+         Mode of automatic parameters: "h" for batch, "ql" for interactive.
+         Default is "ql".

@@ -1,10 +1,11 @@
 NAME
 
-	gtburst - Interactive LAT and/or GBM tool to download, extract and analyze GRB or Solar flare source and background spectra.
+	gtburst - Interactive LAT and/or GBM tool to download, extract and analyze
+			  GRB or Solar flare source and background spectra.
 
-USAGE 
+USAGE
 
-        gtburst
+    gtburst
 
 DESCRIPTION
 
@@ -17,7 +18,7 @@ DESCRIPTION
 	likelihood analysis and observation simulation with standard LAT data.
 
 	The software is internally documented and does not follow the ftools
-    	protocals as do the other Fermi Science Tools.
+    protocals as do the other Fermi Fermitools.
 
 	To initiate a session just type "gtburst" at the unix command line
 	prompt.

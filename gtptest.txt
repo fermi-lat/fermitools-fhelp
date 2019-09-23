@@ -17,66 +17,66 @@ DESCRIPTION
 
 PARAMETERS
 
-evfile [file name]
-    Name of input event file, FT1 format or equivalent.
+    evfile [file name]
+        Name of input event file, FT1 format or equivalent.
 
-outfile [file name]
-    Name of output FITS file that contains a search result.  If
-    outfile is NONE, no FITS output will be created.
+    outfile [file name]
+        Name of output FITS file that contains a search result.  If
+        outfile is NONE, no FITS output will be created.
 
-numphase = 10 [integer]
-    Number of phase bins in each trial for the chi-squared test. 
-    This parameter only has effect if algorithm is CHI2.
+    numphase = 10 [integer]
+        Number of phase bins in each trial for the chi-squared test.
+        This parameter only has effect if algorithm is CHI2.
 
-numharm = 10 [integer]
-    Number of harmonics in each trial for the Z2n/Rayleigh test. 
-    This parameter only has effect if algorithm is Z2N.  For the
-    Rayleigh test, set algorithm to Z2N, and set numharm to 1.
+    numharm = 10 [integer]
+        Number of harmonics in each trial for the Z2n/Rayleigh test.
+        This parameter only has effect if algorithm is Z2N.  For the
+        Rayleigh test, set algorithm to Z2N, and set numharm to 1.
 
-maxharm = 10 [integer]
-    Maximum number of harmonics in each trial for the H test.  This
-    parameter only has effect if algorithm is H.
+    maxharm = 10 [integer]
+        Maximum number of harmonics in each trial for the H test.  This
+        parameter only has effect if algorithm is H.
 
-(evtable = EVENTS) [string]
-    Name of the FITS table containing the event data.
+    (evtable = EVENTS) [string]
+        Name of the FITS table containing the event data.
 
-(pphasefield = PULSE_PHASE) [string]
-    Name of the output column to contain the assigned pulse phase.
+    (pphasefield = PULSE_PHASE) [string]
+        Name of the output column to contain the assigned pulse phase.
 
-(plot = yes) [bool]
-    If plot is yes, the result will be displayed in a separate plot
-    window, as well as the numerical results will be output in a text
-    screen.  If plot is no, only the text output will be displayed,
-    and no plot window will be displayed.
+    (plot = yes) [bool]
+        If plot is yes, the result will be displayed in a separate plot
+        window, as well as the numerical results will be output in a text
+        screen.  If plot is no, only the text output will be displayed,
+        and no plot window will be displayed.
 
-(title = DEFAULT) [string]
-    Title for the graph. By default a title indicating the type of
-    test and other pertinent information will be displayed.
+    (title = DEFAULT) [string]
+        Title for the graph. By default a title indicating the type of
+        test and other pertinent information will be displayed.
 
-(chatter = 2) [integer, min=0, max=4]
-    This parameter fixes the output verbosity: no screen output (0),
-    nominal screen output (2), maximum verbosity (4).
+    (chatter = 2) [integer, min=0, max=4]
+        This parameter fixes the output verbosity: no screen output (0),
+        nominal screen output (2), maximum verbosity (4).
 
-(clobber = yes) [boolean]
-    Overwrite or do not overwrite existing output files.
+    (clobber = yes) [boolean]
+        Overwrite or do not overwrite existing output files.
 
-(debug = no) [boolean]
-    Activate debugging mode. When debug is "no", all exceptions that
-    are not caught and handled by individual tool-specific code are
-    caught by a top-level exception handler that displays information
-    about the exception and then exits. When debug is "yes", such
-    exceptions are not caught by the top level code. Instead the tool
-    produces a segmentation violation, which is more useful for
-    debugging. When debugging mode is enabled, the tool produces more
-    verbose output describing any errors or exceptions that are
-    encountered.
+    (debug = no) [boolean]
+        Activate debugging mode. When debug is "no", all exceptions that
+        are not caught and handled by individual tool-specific code are
+        caught by a top-level exception handler that displays information
+        about the exception and then exits. When debug is "yes", such
+        exceptions are not caught by the top level code. Instead the tool
+        produces a segmentation violation, which is more useful for
+        debugging. When debugging mode is enabled, the tool produces more
+        verbose output describing any errors or exceptions that are
+        encountered.
 
-(gui = no) [boolean]
-    Graphical user Interface (GUI) mode activated if "yes" is
-    specified.
+    (gui = no) [boolean]
+        Graphical user Interface (GUI) mode activated if "yes" is
+        specified.
 
-(mode = ql) [string]
-    Mode of automatic parameters.
+    (mode = ql) [string]
+        Mode of automatic parameters.
 
 EXAMPLES
 

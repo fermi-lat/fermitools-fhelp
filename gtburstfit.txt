@@ -1,11 +1,11 @@
-NAME    
+NAME
         gtburstfit - Analyzes burst light curves by applying a
         Bayesian algorithm to determine the optimum set of blocks to
         follow the burst profile shape, then optionally fitting a
         model to the data using the Bayesian Block definitions to
         determine the number of model components and initial values
         for the model parameters.
- 
+
 USAGE
 
         gtburstfit evfile fitguess amp time0 tau1 tau2 bckgnd
@@ -25,14 +25,14 @@ of terms of the form:
 where A is the amplitude of the pulse, time0 is the time of the pulse,
 tau1 is the "Rise Coefficient", and tau2 is the "Decay Coefficient" of
 the pulse.
-  
+
 The number of these terms is determined automatically by gtburstfit by
 looking for peaks and valleys in the Bayesian block definitions, and
 using these to determine the number of peaks detected, and their
 approximate positions, heights and widths.
 
 Gtburstfit uses as input a time binned data file. The original event
-data file can be obtained from the FERMI Science Support Center (FSSC)
+data file can be obtained from the Fermi Science Support Center (FSSC)
 website and can be binned with gtbin using the light curve (LC) option
 (see the gtbin documentation).
 
@@ -98,31 +98,31 @@ tau2 = 0 [double]
 This is the decay coefficient. See formula (1) in the DESCRIPTION
 section of this document.
 
-bckgnd = 0 [double] 
-This is the constant background rate. 
+bckgnd = 0 [double]
+This is the constant background rate.
 
 (evtable = RATE) [string]
 Event table extension name. This is a hidden parameter. The default value is "RATE".
-	 	 
+
 (fit = YES) [bool]
 If yes, causes gtburstfit to fit parameters to minimize Chi Square for
 the deviation from the fit model. If no, only the definitions of
 Bayesian blocks found by the tool will be presented. This is a hidden
 parameter. The default value is "yes".
- 	 	 
+
 (plot = YES) [bool]
 If yes, causes gtburstfit to display a plot showing the data, the
 Bayesian Blocks, which were created for the data, and the results of
 the fit. (The fit will only be displayed if the fit parameter is set
 to YES). This is a hidden parameter. The default value is "yes".
- 	 	  	
+
 (ncpprior = 9.) [double]
 This number represents a heuristic bias against creating new blocks,
 used to allow some control over the number of blocks created. If too
 many (too few) blocks are being created for a given set of data, the
 user may increase (decrease) this parameter value. This is a hidden
 parameter. The default value is 9.
- 	 	 
+
 (plotres = no) [bool]
 If yes the tool displays the plot of the residuals. This is a hidden
 parameter. The default value is no.
@@ -131,16 +131,16 @@ title = DEFAULT [string]
 This parameter allows the user to include a title for the plot. This
 is a hidden parameter. The default value is "DEFAULT".
 
-(chatter)  
+(chatter)
 This parameter fixes the output verbosity: no screen output (0),
 nominal screen output (2), maximum verbosity (4). The default value is
 2.
 
-(clobber = yes)        
+(clobber = yes)
 If true, an existing file of the same name will be overwritten. This
 is a hidden parameter. The default value is "yes'.
 
-(debug = no)   
+(debug = no)
 Activate debugging mode. The default value is "no". When debug is
 "no", all exceptions that are not caught and handled by individual
 tool-specific code are caught by a top-level exception handler that
@@ -151,20 +151,20 @@ debugging. When debugging mode is enabled, the tool produces more
 verbose output describing any errors or exceptions that are
 encountered.
 
-(gui = no) 
+(gui = no)
 Graphical user Interface (GUI) mode activated if "yes" is
 specified. The default value is "no".
 
 (mode = ql)
-Mode of automatic parameters. The default value is "ql". 
-        
+Mode of automatic parameters. The default value is "ql".
+
 EXAMPLES
 
 The way that the parameters are passed follows the FTOOLs model: They
 could be passed by answering from a prompt, as a list in a command
 line, or by editing the parameter file.
 
-To be prompted for gtburstfit simply type in the command line: 
+To be prompted for gtburstfit simply type in the command line:
 
 >gtburstfit
 
@@ -177,12 +177,12 @@ plot you may set the parameter title like this in the command line:
 >gtburstfit title=MyPLOT
 
 where "MyPLOT" will be the title of your plot.
-  
+
 An example of how to run gtburstfit using the AUTO option is given below:
 
 > gtburstfit
 Name of file containing events [] : LAT_090119205_v4_filtered_lc.fits
-How will initial values for fit be determined <AUTO|MAN|CALC> [AUTO] : 
+How will initial values for fit be determined <AUTO|MAN|CALC> [AUTO] :
 After initial guess but before any fitting, reduced chi square is 0.83314586
 Parameters are:
 Peak 1:
@@ -210,7 +210,7 @@ Interval                                  Average Counts
 
 
 An example of how to run the tool using the MAN option is given below:
- 
+
 > gtburstfit
 This is gtburstfit version N/A
 Name of file containing events [] : LAT_090119205_v4_filtered_lc.fits
@@ -255,4 +255,3 @@ SEE ALSO
 
 
 *gtbin
-

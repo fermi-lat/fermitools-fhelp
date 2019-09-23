@@ -4,7 +4,7 @@ NAME
                 known, guessed or estimated reference frequency.
 
 USAGE
-    
+
     gtpsearch evfile scfile psrdbfile psrname outfile algorithm numphase
               numharm maxharm scanstep numtrials timeorigin usertime
 	      userformat usersys ephstyle ephepoch timeformat timesys
@@ -59,11 +59,11 @@ algorithm = CHI2 [enumerated string (CHI2|Z2N|H)]
     numharm parameter) to 1.
 
 numphase = 10 [integer]
-    Number of phase bins in each trial for the chi-squared test. 
+    Number of phase bins in each trial for the chi-squared test.
     This parameter only has effect if algorithm is CHI2.
 
 numharm = 10 [integer]
-    Number of harmonics in each trial for the Z2n/Rayleigh test. 
+    Number of harmonics in each trial for the Z2n/Rayleigh test.
     This parameter only has effect if algorithm is Z2N.  For the
     Rayleigh test, set algorithm to Z2N, and set numharm to 1.
 
@@ -158,7 +158,7 @@ f2 = 0. [double]
 
 p0 = 1. [double]
     Value of the period at the time given by the epoch parameter in
-    seconds.  This parameter only has effect if ephstyle is PER. 
+    seconds.  This parameter only has effect if ephstyle is PER.
     Note that ephemeris computations using this parameter will be
     performed in the time system specified by timesys parameter.
 
@@ -221,7 +221,7 @@ p2 = 0. [double]
     applied. This parameter only has effect if the barycentric
     correction has been applied to an input event data file.  If the
     two source positions are separate from each other by this amount
-    or less, then they will be considered to be the same position. 
+    or less, then they will be considered to be the same position.
     Otherwise an error will be generated.  The sign of the parameter
     value is ignored.  For example, setting angtol=-1.0 results in
     giving angular tolerance of 1 degree.
@@ -308,7 +308,7 @@ PULSAR EPHEMERIS DATABASE FILE
     A pulsar ephemeris database file is a FITS file or a text file in
     a Fermi-specific format, and contains a set of pulsar ephemerides
     to be used in a temporal analysis of Fermi data. When so
-    specified, the pulsar analysis tools in Fermi Science Tools load
+    specified, the pulsar analysis tools in Fermitools load
     pulsar ephemerides from pulsar ephemeris database files, and use
     them in their tasks.  A pulsar ephemeris database file can be
     created, filtered, and combined by the gtpulsardb tool. Also,

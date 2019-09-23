@@ -4,7 +4,7 @@ NAME
                  database files.
 
 USAGE
-    
+
     gtpulsardb psrdbfile outfile filter psrname tstart tstop solareph
 
 DESCRIPTION
@@ -18,85 +18,85 @@ DESCRIPTION
 
 PARAMETERS
 
-psrdbfile [file name]
-    Name of input file containing ephemerides (See PULSAR EPHEMERIS
-    DATABASE FILE). Multiple files may be combined by listing them in
-    a text file, one per line, and supplying the list file name
-    preceded by an @ sign. If psrdbfile is NONE (case-insensitive), no
-    ephemeris is loaded from a file.
+    psrdbfile [file name]
+        Name of input file containing ephemerides (See PULSAR EPHEMERIS
+        DATABASE FILE). Multiple files may be combined by listing them in
+        a text file, one per line, and supplying the list file name
+        preceded by an @ sign. If psrdbfile is NONE (case-insensitive), no
+        ephemeris is loaded from a file.
 
-outfile [file name] 
-    Name of output file, which will be in Fermi D4 FITS format.
+    outfile [file name]
+        Name of output file, which will be in Fermi D4 FITS format.
 
-filter = NONE [enumerated string (NAME|TIME|SOLAREPH|NONE)]
-    Type of filtering to be performed. If filter is NAME, the pulsar
-    name (see psrname parameter) will be used to select only
-    ephemerides for the named pulsar. If filter is TIME, the
-    parameters tstart and tstop will be used to filter the
-    ephemerides based on that time range. If filter is SOLAREPH, only
-    ephemerides that match the solareph parameter will be selected.
-    If filter is NONE, no filtering will be performed.
+    filter = NONE [enumerated string (NAME|TIME|SOLAREPH|NONE)]
+        Type of filtering to be performed. If filter is NAME, the pulsar
+        name (see psrname parameter) will be used to select only
+        ephemerides for the named pulsar. If filter is TIME, the
+        parameters tstart and tstop will be used to filter the
+        ephemerides based on that time range. If filter is SOLAREPH, only
+        ephemerides that match the solareph parameter will be selected.
+        If filter is NONE, no filtering will be performed.
 
-psrname = ANY [string]
-    Name of the pulsar, used to select only ephemerides valid for a
-    particular pulsar. This only has effect when the filter parameter
-    is NAME.
+    psrname = ANY [string]
+        Name of the pulsar, used to select only ephemerides valid for a
+        particular pulsar. This only has effect when the filter parameter
+        is NAME.
 
-tstart = 0. [double]
-    Time used for the beginning of the interval used for time
-    filtering. This only has effect when the filter parameter is
-    TIME.
+    tstart = 0. [double]
+        Time used for the beginning of the interval used for time
+        filtering. This only has effect when the filter parameter is
+        TIME.
 
-tstop = 1.e5 [double]
-    Time used for the end of the interval used for time filtering.
-    This only has effect when the filter parameter is TIME.
+    tstop = 1.e5 [double]
+        Time used for the end of the interval used for time filtering.
+        This only has effect when the filter parameter is TIME.
 
-solareph = JPL DE405 [enumerated string (JPL DE200|JPL DE405)]
-    Solar system ephemeris used to filter the ephemerides. This only
-    has effect when the filter parameter is SOLAREPH.
+    solareph = JPL DE405 [enumerated string (JPL DE200|JPL DE405)]
+        Solar system ephemeris used to filter the ephemerides. This only
+        has effect when the filter parameter is SOLAREPH.
 
-author = Anonymous User [string]
-    Name of person responsible for generation of the database being
-    compiled.  The name will be recorded in AUTHOR header keyword of
-    the primary extension of the output ephemeris database file.  The
-    value is intended to help identify the created file, together
-    with DATE header keyword value, which is the file creation time
-    of the output ephemeris database file which the application
-    automatically computes.  Also, it appears in the creation history
-    recorded in HISTORY header keywords of the primary extension of
-    the output ephemeris database file, in order to help trace back
-    originating ephemeris data.
+    author = Anonymous User [string]
+        Name of person responsible for generation of the database being
+        compiled.  The name will be recorded in AUTHOR header keyword of
+        the primary extension of the output ephemeris database file.  The
+        value is intended to help identify the created file, together
+        with DATE header keyword value, which is the file creation time
+        of the output ephemeris database file which the application
+        automatically computes.  Also, it appears in the creation history
+        recorded in HISTORY header keywords of the primary extension of
+        the output ephemeris database file, in order to help trace back
+        originating ephemeris data.
 
-(leapsecfile = DEFAULT) [file name]
-    Name of the file containing the name of the leap second table, in
-    OGIP-compliant leap second table format. If leapsecfile is the
-    string DEFAULT, the default leap-second file (leapsec.fits),
-    which is distributed with the extFiles package, will be used.
+    (leapsecfile = DEFAULT) [file name]
+        Name of the file containing the name of the leap second table, in
+        OGIP-compliant leap second table format. If leapsecfile is the
+        string DEFAULT, the default leap-second file (leapsec.fits),
+        which is distributed with the extFiles package, will be used.
 
-(chatter = 2) [integer, min=0, max=4]
-    This parameter fixes the output verbosity: no screen output (0),
-    nominal screen output (2), maximum verbosity (4).
+    (chatter = 2) [integer, min=0, max=4]
+        This parameter fixes the output verbosity: no screen output (0),
+        nominal screen output (2), maximum verbosity (4).
 
-(clobber = yes) [boolean]
-    Overwrite or do not overwrite existing output files.
+    (clobber = yes) [boolean]
+        Overwrite or do not overwrite existing output files.
 
-(debug = no) [boolean]
-    Activate debugging mode. When debug is "no", all exceptions that
-    are not caught and handled by individual tool-specific code are
-    caught by a top-level exception handler that displays information
-    about the exception and then exits. When debug is "yes", such
-    exceptions are not caught by the top level code. Instead the tool
-    produces a segmentation violation, which is more useful for
-    debugging. When debugging mode is enabled, the tool produces more
-    verbose output describing any errors or exceptions that are
-    encountered.
+    (debug = no) [boolean]
+        Activate debugging mode. When debug is "no", all exceptions that
+        are not caught and handled by individual tool-specific code are
+        caught by a top-level exception handler that displays information
+        about the exception and then exits. When debug is "yes", such
+        exceptions are not caught by the top level code. Instead the tool
+        produces a segmentation violation, which is more useful for
+        debugging. When debugging mode is enabled, the tool produces more
+        verbose output describing any errors or exceptions that are
+        encountered.
 
-(gui = no) [boolean]
-    Graphical user Interface (GUI) mode activated if "yes" is
-    specified.
+    (gui = no) [boolean]
+        Graphical user Interface (GUI) mode activated if "yes" is
+        specified.
 
-(mode = ql) [string]
-    Mode of automatic parameters.
+    (mode = ql) [string]
+        Mode of automatic parameters.
 
 EXAMPLES
 
@@ -133,7 +133,7 @@ PULSAR EPHEMERIS DATABASE FILE
     A pulsar ephemeris database file is a FITS file or a text file in
     a Fermi-specific format, and contains a set of pulsar ephemerides
     to be used in a temporal analysis of Fermi data. When so
-    specified, the pulsar analysis tools in Fermi Science Tools load
+    specified, the pulsar analysis tools in Fermitools load
     pulsar ephemerides from pulsar ephemeris database files, and use
     them in their tasks.  A pulsar ephemeris database file can be
     created, filtered, and combined by the gtpulsardb tool. Also,

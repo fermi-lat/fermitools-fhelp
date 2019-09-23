@@ -4,7 +4,7 @@ NAME
                file(s), and writes it to a FITS column in the file(s).
 
 USAGE
-    
+
     gtophase evfile scfile psrdbfile psrname ra dec
 
 DESCRIPTION
@@ -71,7 +71,7 @@ dec [double]
     applied. This parameter only has effect if the barycentric
     correction has been applied to an input event data file.  If the
     two source positions are separate from each other by this amount
-    or less, then they will be considered to be the same position. 
+    or less, then they will be considered to be the same position.
     Otherwise an error will be generated.  The sign of the parameter
     value is ignored.  For example, setting angtol=-1.0 results in
     giving angular tolerance of 1 degree.
@@ -165,8 +165,6 @@ PULSAR EPHEMERIS DATABASE FILE
     following web page.
 
     http://fermi.gsfc.nasa.gov/ssc/data/access/lat/ephems/
-
-KNOWN BUGS
 
 SEE ALSO
 

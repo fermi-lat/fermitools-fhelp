@@ -108,7 +108,7 @@ f1f0ratio = 0. [double]
 
 f2f0ratio = 0. [double]
     Ratio of frequency second time derivative to frequency at the
-    time given by the timeorigin parameter in the units of s^(-2). 
+    time given by the timeorigin parameter in the units of s^(-2).
     This parameter only has effect if ephstyle is FREQ.  Note that
     pdot cancellation will be performed in TDB time system unless
     tcorrect is NONE.
@@ -172,7 +172,7 @@ p2p0ratio = 0. [double]
     applied. This parameter only has effect if the barycentric
     correction has been applied to an input event data file.  If the
     two source positions are separate from each other by this amount
-    or less, then they will be considered to be the same position. 
+    or less, then they will be considered to be the same position.
     Otherwise an error will be generated.  The sign of the parameter
     value is ignored.  For example, setting angtol=-1.0 results in
     giving angular tolerance of 1 degree.
@@ -266,7 +266,7 @@ PULSAR EPHEMERIS DATABASE FILE
     A pulsar ephemeris database file is a FITS file or a text file in
     a Fermi-specific format, and contains a set of pulsar ephemerides
     to be used in a temporal analysis of Fermi data. When so
-    specified, the pulsar analysis tools in Fermi Science Tools load
+    specified, the pulsar analysis tools in Fermitools load
     pulsar ephemerides from pulsar ephemeris database files, and use
     them in their tasks.  A pulsar ephemeris database file can be
     created, filtered, and combined by the gtpulsardb tool. Also,
