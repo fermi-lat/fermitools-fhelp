@@ -3,7 +3,7 @@ NAME
      gtexpcube2 - Generates an exposure map, or a set of exposure maps for
                   different energies, from a livetime cube written by
                   gtltcube.
-  
+
 
 USAGE
 
@@ -15,7 +15,7 @@ DESCRIPTION
 
      The new gtexpcube2 tool replaces the old gtexpcube application
      from the map_tools package, and it also replaces the "on-the-fly"
-     binned exposure map calculation that was provided by gtsrcmaps. 
+     binned exposure map calculation that was provided by gtsrcmaps.
 
      The new gtexpcube2 tool accounts for the phi-modulation of the
      effective area for the irfs that implement this dependence (e.g.,
@@ -24,20 +24,20 @@ DESCRIPTION
      starting from the P6_V3_DIFFUSE irfs.
 
      It is strongly recommended that the old gtexpcube application not
-     be used for Likelihood analysis any longer. 
+     be used for Likelihood analysis any longer.
 
 
 PARAMETERS
 
-    infile [filename] 
+    infile [filename]
          Livetime or Exposure cube FITS file from gtltcube.
 
-    cmap [filename] 
-	 Counts map file from gtbin, for which gtexpcube2
-         should match the coordinate projection and gridding.  The counts
-         map also specifies the effective area response functions for
-         gtexpcube2 to use. Select "none" if the map geometry is specified 
-	 from parameters (nxpix, nypix, xref, yref, enumbins, etc).(optional) 
+    cmap [filename]
+    	 Counts map file from gtbin, for which gtexpcube2 should match the
+    	 coordinate projection and gridding.  The counts map also specifies the
+    	 effective area response functions for gtexpcube2 to use. Select "none"
+    	 if the map geometry is specified from parameters (nxpix, nypix, xref,
+    	 yref, enumbins, etc).(optional)
 
     outfile [filename]
          Exposure map output FITS file name.
@@ -48,34 +48,41 @@ PARAMETERS
          source and the LAT normal), and photon category. Default is "CALDB".
 
      evtype [integer]
-   	  The evtype to be used in generating the bacground data. The
-   	  default is INDEF which will use the default in the input
-   	  file. This can be overridded by entering the desired event
-   	  type e.g. 3 for FRONT + BACK events. 
+       	  The evtype to be used in generating the background data. The
+       	  default is INDEF which will use the default in the input
+       	  file. This can be overridden by entering the desired event
+       	  type e.g. 3 for FRONT + BACK events.
+
+     (edisp_bins) [integer]
+          Number of extra bins to compute for energy dispersion purposes.
+          Defaults to zero.  Note, any gtlike and pyLikehood analysis with
+          edisp_bins > 0 using a source map file or exposure map file that does
+          not include the at least as many extra energy bins will abort and give
+          you a message explaining that you need to remake the offending file.
 
     nxpix [integer]
-         Size of the X (i.e., horizontal) axis in pixels. If proj is "CAR",  
+         Size of the X (i.e., horizontal) axis in pixels. If proj is "CAR",
          "AIT", or "ZEA", the value "1" is used for full sky. Default is "360".
 
     nypix [integer]
-         Size of the Y (i.e., vertical) axis in pixels. If proj is "CAR", 
+         Size of the Y (i.e., vertical) axis in pixels. If proj is "CAR",
          "AIT", or "ZEA", the value "1" is used for full sky. Default is "180".
 
     binsz [float]
          Image scale (in degrees/pixel). Default is "1".
 
     coordsys [string]
-         Coordinate system ("CEL" - celestial, "GAL" - galactic). If "CEL" is 
-	 chosen, RA and Dec (J2000) in the xref and yref parameters have to be
-	 provided; If "GAL" is chosen, the Galactic coordinates (l and b) must be
-	 given. Default is "GAL".
+         Coordinate system ("CEL" - celestial, "GAL" - galactic). If "CEL" is
+         chosen, RA and Dec (J2000) in the xref and yref parameters have to be
+         provided; If "GAL" is chosen, the Galactic coordinates (l and b) must
+         be given. Default is "GAL".
 
     xref [float]
          First Coordinate (i.e., horizontal) of image center either in
          degrees (RA) for celestial coordinates; or in decimal degrees
-         decimal degrees (l) for Galactic coordinates. Default is "0". 
+         decimal degrees (l) for Galactic coordinates. Default is "0".
 
-    yref [float] 
+    yref [float]
          Second coordinate (i.e., vertical) of image center either in
          degrees (DEC) in celestial coordinates; or in decimal degrees (b)
          in Galactic coordinates. Default is "0".
@@ -90,19 +97,19 @@ PARAMETERS
          [NCP], Slant orthographic [SIN], Stereographic [STG], Gnomonic
          [TAN]. See Calabretta & Greisen 2002, A&A, 395, 1077 for
          definitions of the projections. Must be AIT, ZEA, or CAR for auto
-         full sky. Default is "CAR". 
+         full sky. Default is "CAR".
 
-    (ebinalg) [string] 
+    (ebinalg) [string]
          Algorithm for defining energy bins, in logarithmic scale ("LOG")
-	 or provided by a user ("FILE"). Default is "LOG". 
+	     or provided by a user ("FILE"). Default is "LOG".
 
-    emin [float]   
+    emin [float]
          Start energy (MeV) of first bin. It must be larger than, or equal
-         to, 100 MeV to match the available IRFs. Default is "100". 
+         to, 100 MeV to match the available IRFs. Default is "100".
 
-    emax [float] 
+    emax [float]
          Stop energy (MeV) of last bin. It must be less than, or equal to,
-         300 GeV. Default is "3e5". 
+         300 GeV. Default is "3e5".
 
     enumbins [integer]
          Number of logarithmically spaced energy bins spanning emin to emax.
@@ -110,15 +117,23 @@ PARAMETERS
 
     ebinfile [string]
          Name of FITS file containing the energy bin definition. Default is
-         "NONE".  
+         "NONE".
+
+     hpx_ordering_scheme [string: RING|NESTED]
+         Ordering Scheme for the binning (see
+         http://healpix.jpl.nasa.gov/html/intronode4.htm for more info)
+
+     hpx_order [integer]
+         Order of the map (integer between 0 and 12, included), corresponding to
+         the level of pixelization or resolution.
 
     (bincalc) [string]
          Allows to choose how energy layers are computed from the count
          map (cmap parameter) energy bounds, e.g., bincalc="CENTER" will
          force the tool to compute the exposures using the energy at the
          geometric mean of the energy bounds for each energy bin.
-	 The default is bincalc="EDGE" and should be what is used in the
-	 binned Likelihood analysis. 
+	     The default is bincalc="EDGE" and should be what is used in the
+	     binned Likelihood analysis.
 
     (ignorephi) [boolean]
          Ignore phi information (i.e., phi-averaged effective area) in
@@ -128,17 +143,17 @@ PARAMETERS
          Applies a theta cut on the entries from the livetime cube that are
          included in the exposure integrals. Units are degrees from the
          LAT's z-axis. The default is "180" and should not be changed
-         for standard Likelihood analyses.  
+         for standard Likelihood analyses.
 
-    (thmin) [integer] 
+    (thmin) [integer]
          Applies a theta cut on the entries from the livetime cube that are
          included in the exposure integrals. Units are degrees from the
-         LAT's z-axis. Default is "0".  
+         LAT's z-axis. Default is "0".
 
     (table) [string]
          Exposure cube extension. Default is "Exposure".
 
-    (chatter) [integer] 
+    (chatter) [integer]
          Output verbosity; no screen output (0), nominal screen output (2),
          maximum verbosity (4). Default is "2".
 
@@ -146,18 +161,17 @@ PARAMETERS
          Overwrite existing output files. Default is "yes".
 
     (debug) [boolean]
-         Activate debugging mode. Default is "no". When debug is "no", all 
-	 exceptions that are not caught and handled by individual tool-specific 
-	 code are caught by a top-level exception handler that displays 
-	 information about the exception and then exits. When debug is "yes", 
-	 such exceptions are not caught by the top
-         level code. Instead the tool produces a segmentation violation,
-         which is more useful for debugging. When debugging mode is
-         enabled, the tool produces more verbose output describing any
-         errors or exceptions that are encountered.
+         Activate debugging mode. Default is "no". When debug is "no", all
+         exceptions that are not caught and handled by individual tool-specific
+         code are caught by a top-level exception handler that displays
+         information about the exception and then exits. When debug is "yes",
+         such exceptions are not caught by the top level code. Instead the tool
+         produces a segmentation violation, which is more useful for debugging.
+         When debugging mode is enabled, the tool produces more verbose output
+         describing any errors or exceptions that are encountered.
 
     (mode) [string]
-          Mode of automatic parameters: "h" for batch, "ql" for interactive. 
+          Mode of automatic parameters: "h" for batch, "ql" for interactive.
           Default is "ql".
 
 
@@ -169,59 +183,59 @@ EXAMPLES
 
     To run gtexpcube2 interactively, enter (at the command line):
 
-> gtexpcube2
+    > gtexpcube2
 
     The user will then be prompted for parameter values.
 
     Note: Not all parameter are prompted; some of them are "hidden". To
     change one of the "hidden" parameter, the user should specify the values in
-    the command line or modify its mode by editing the parameter 
+    the command line or modify its mode by editing the parameter
     file. For example, if the user wants to change the bincalc
-    parameter, the following command must be entered (at the prompt): 
+    parameter, the following command must be entered (at the prompt):
 
->gtexpcube2 bincalc=CENTER 
+    >gtexpcube2 bincalc=CENTER
 
     In this case the energy layers are computed at the CENTER of the
-    count map ebounds. 
+    count map ebounds.
 
     Observe that, in the following examples, the interface to gtexpcube2
-    differs somewhat from the old gtexpcube: 
+    differs somewhat from the old gtexpcube:
 
-Example 1. 
-    Used for nominal cases; provides a geometry that matches the counts cube. 
+    Example 1.
+        Used for nominal cases; provides a geometry that matches the counts cube.
 
-> gtexpcube2
-Livetime cube file[] ltcube_phi4.fits
-Counts map file[] cmap.fits
-Output file name[] bexpmap_phi4.fits
-Response functions to use[P7REP_SOURCE_V15]
+    > gtexpcube2
+    Livetime cube file[] ltcube_phi4.fits
+    Counts map file[] cmap.fits
+    Output file name[] bexpmap_phi4.fits
+    Response functions to use[P7REP_SOURCE_V15]
 
-    Note: The livetime cube ("ltcube_phi4.fits") is created using
-    gtltcube phibins=4. If the phi-dependence is missing from the
-    livetime cube, the phi-averaged effective area tabulation will be
-    used. 
+        Note: The livetime cube ("ltcube_phi4.fits") is created using
+        gtltcube phibins=4. If the phi-dependence is missing from the
+        livetime cube, the phi-averaged effective area tabulation will be
+        used.
 
-Example 2: 
-    Used for specialized cases (e.g., the catalogp pipeline); provides 
-    an "all-sky" exposure cube. Allows to specify the geometry when
-    the input counts map is explicitly set to "none". 
+    Example 2:
+        Used for specialized cases (e.g., the catalogp pipeline); provides
+        an "all-sky" exposure cube. Allows to specify the geometry when
+        the input counts map is explicitly set to "none".
 
-> gtexpcube2
-Livetime cube file[] ltcube_phi4.fits
-Counts map file[] none
-Output file name[] bexpmap_allsky_phi4_nocmap.fits
-Response functions to use[P7REP_SOURCE_V15]
-Size of the X axis in pixels[360]
-Size of the Y axis in pixels[180]
-Image scale (in degrees/pixel)[1] 0.5
-Coordinate system (CEL - celestial, GAL -galactic) (CEL|GAL) [GAL]
-First coordinate of image center in degrees (RA or galactic l)[0]
-Second coordinate of image center in degrees (DEC or galactic b)[0]
-Rotation angle of image axis, in degrees[0]
-Projection method e.g. AIT|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN[CAR] AIT
-Start energy (MeV) of first bin[100]
-Stop energy (MeV) of last bin[300000]
-Number of logrithmically-spaced energy bins[10] 3
+    > gtexpcube2
+    Livetime cube file[] ltcube_phi4.fits
+    Counts map file[] none
+    Output file name[] bexpmap_allsky_phi4_nocmap.fits
+    Response functions to use[P7REP_SOURCE_V15]
+    Size of the X axis in pixels[360]
+    Size of the Y axis in pixels[180]
+    Image scale (in degrees/pixel)[1] 0.5
+    Coordinate system (CEL - celestial, GAL -galactic) (CEL|GAL) [GAL]
+    First coordinate of image center in degrees (RA or galactic l)[0]
+    Second coordinate of image center in degrees (DEC or galactic b)[0]
+    Rotation angle of image axis, in degrees[0]
+    Projection method e.g. AIT|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN[CAR] AIT
+    Start energy (MeV) of first bin[100]
+    Stop energy (MeV) of last bin[300000]
+    Number of logrithmically-spaced energy bins[10] 3
 
     The user is prompted for a Livetime cube file, which in this case is
     called "ltcube_phi4.fits", and it was previously created using
@@ -231,16 +245,16 @@ Number of logrithmically-spaced energy bins[10] 3
     specified. A map of the entire sky was created, with 0.5 degree
     bins centered on Galactic Coordinates l=0, b=0. A total number of
     3 energy logarithmic bins were selected starting from an energy of
-    100 MeV and ending in 300 GeV. 
+    100 MeV and ending in 300 GeV.
 
     Note: Once the output exposure FITS file has been generated, it
     can be viewed with a FITS viewer such as ds9 or fv. It contains a
     data structure with layers corresponding to the number of bins
-    specified. 
+    specified.
 
     The previous example can also be run in the command line as follows:
 
->gtexpcube2 infile= ltcube_phi4.fits cmap=none \
+    >gtexpcube2 infile= ltcube_phi4.fits cmap=none \
          outfile=bexpmap_allsky_phi4_nocmap.fits irfs=P7REP_SOURCE_V15 \
          nxpix=360 nypix=180 pixscale=0.5 coordsys=GAL xref=0 yref=0 \
          axisrot=0 proj=AIT emin=100 emax=300000 enumbins=3
@@ -248,44 +262,41 @@ Number of logrithmically-spaced energy bins[10] 3
     Once the output exposure FITS file has been generated, it can be
     viewed with a FITS viewer such as ds9 or fv. It contains a data
     structure with layers corresponding to the number of bins
-    specified. 
+    specified.
 
-Example 3. Ignore phi-dependence.
+    Example 3. Ignore phi-dependence.
 
-> gtexpcube2 ignorephi=yes
-Livetime cube file[] ltcube_phi4.fits
-Counts map file[] cmap.fits
-Output file name[] bexpmap_phi4.fits
-Response functions to use[P7REP_SOURCE_V15]
-    
-
-Example 4. Enable ebinalg=FILE; ebinalg=LOG is the default.
-
-> gtexpcube2 ebinalg=FILE
-Livetime cube file[] ltcube_phi4.fits
-Counts map file[] none
-Output file name[] bexpmap_test.fits
-Response functions to use[P7REP_SOURCE_V15]
-Size of the X axis in pixels[360]
-Size of the Y axis in pixels[180]
-Image scale (in degrees/pixel)[1]
-Coordinate system (CEL - celestial, GAL -galactic) (CEL|GAL) [GAL]
-First coordinate of image center in degrees (RA or galactic l)[0]
-Second coordinate of image center in degrees (DEC or galactic b)[0]
-Rotation angle of image axis, in degrees[0]
-Projection method e.g. AIT|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN[AIT]
-Name of FITS file containing the energy bin definition[] ebins.fits
+    > gtexpcube2 ignorephi=yes
+    Livetime cube file[] ltcube_phi4.fits
+    Counts map file[] cmap.fits
+    Output file name[] bexpmap_phi4.fits
+    Response functions to use[P7REP_SOURCE_V15]
 
 
-KNOWN BUGS
+    Example 4. Enable ebinalg=FILE; ebinalg=LOG is the default.
+
+    > gtexpcube2 ebinalg=FILE
+    Livetime cube file[] ltcube_phi4.fits
+    Counts map file[] none
+    Output file name[] bexpmap_test.fits
+    Response functions to use[P7REP_SOURCE_V15]
+    Size of the X axis in pixels[360]
+    Size of the Y axis in pixels[180]
+    Image scale (in degrees/pixel)[1]
+    Coordinate system (CEL - celestial, GAL -galactic) (CEL|GAL) [GAL]
+    First coordinate of image center in degrees (RA or galactic l)[0]
+    Second coordinate of image center in degrees (DEC or galactic b)[0]
+    Rotation angle of image axis, in degrees[0]
+    Projection method e.g. AIT|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN[AIT]
+    Name of FITS file containing the energy bin definition[] ebins.fits
 
 
 SEE ALSO
 
      gtbin
-     
+
      gtdiffrsp
-     
+
      gtlike
 
      gtltcube
