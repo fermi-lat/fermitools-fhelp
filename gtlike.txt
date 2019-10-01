@@ -368,12 +368,13 @@ PARAMETERS
          faster.
 
     (edisp_bins) [integer]
-         Specify how the energy dispersion is applied. If zero, energy
-         dispersion is not applied. If less than zero, the "old" method of
-         energy dispersion is applied, with -1*edisp_bins extra bins. If
-         edisp_bins is greater than zero, then the "new" method of energy
-         dispersion is computed by mixing in edisp_bins extra maps on either
-         side of the energy bin in question.
+         Specify how the energy dispersion is applied. If zero, no energy
+         dispersion correction is applied. If less than zero, the spectral only
+         correction method is applied with -1*edisp_bins extra bins. Using
+         edisp_bins=-1 corresponds to the correction method originally used by
+         the tools. If edisp_bins is greater than zero, then the spectral plus
+         spatial correction is applied using edisp_bins additional bins at
+         each edge of the energy range.
 
     (chatter) [integer]
          This parameter fixes the output verbosity: no screen output (0),
