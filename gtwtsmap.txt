@@ -5,19 +5,19 @@ NAME
 
 USAGE
 
-    gteffbkg effbkgfile alphafile outfile epsilon
+    gtwtsmap effbkgfile alphafile outfile epsilon
 
 
 DESCRIPTION
 
     This tool is used to generate likelihood weights maps for maps
-    of the effective backgound.  The likelihood weight is defined
+    of the effective background.  The likelihood weight is defined
     so that the total uncertainty will be some small fraction (epsilon)
     of the effective background.  Since the effective background
     is expected contribution to the uncertainty on a likelihood fit 
     for a point source coming from statistical uncertainty of the 
     background model, epsilon can be interpreted as the contribution 
-    to the systematic uncertainty coming from mismodeling the background 
+    to the systematic uncertainty coming from mis-modeling the background 
     expressed as a fraction of the background model.
 
 
@@ -35,8 +35,8 @@ PARAMETERS
        	weights.
 
     epsilon [float]
-       	Epsilon parameter, this is the fractional systematic uncertaintiy,
-       	i.e., the desired systematic uncertaintiy, expressed as a 
+       	Epsilon parameter, this is the fractional systematic uncertainty,
+       	i.e., the desired systematic uncertainty, expressed as a 
        	fraction of the effective background.  Defaults to 0.03.
 
     (chatter) [integer]
@@ -112,3 +112,4 @@ SEE ALSO
     gteffbkg
     
     gtalphbkg
+

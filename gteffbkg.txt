@@ -11,14 +11,14 @@ USAGE
 
 DESCRIPTION
 
-    This tool is used to estimate the effective backgound that is 
+    This tool is used to estimate the effective background that is 
     present for a point source as a function of position and energy.  
     This estimate is defined so that the square root of the effective 
     background is very close to the expected contribution to the 
     uncertainty on a likelihood fit for a point source coming from
     statistical uncertainty of the background model.   It can also 
     be used estimate the effect of systematic uncertainties of the 
-    background model, when they can be parameterized as a fraction of 
+    background model, when they can be parametrized as a fraction of 
     the effective background.  
 
 
@@ -69,7 +69,8 @@ PARAMETERS
 
     (edisp_bins) [integer]
          Number of extra bins to compute for energy dispersion purposes.
-	 FIXME (is the actually used in the computation?)
+	 This needed to initialize the code, but is not actually used
+	 in the computation of the effective background.
 
     (chatter) [integer]
          This parameter fixes the output verbosity: no screen output (0),
@@ -146,3 +147,4 @@ SEE ALSO
     gtalphbkg
     
     gtwtsmap
+

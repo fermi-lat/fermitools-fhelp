@@ -13,8 +13,8 @@ DESCRIPTION
 
     This tool is used to estimate the contributions to likelihood 
     weights when combining different analysis components.  This 
-    estimate is defined likelihood will be deweighted so as to give 
-    an uncertainty esimate that is a fraction (epsilon) of the 
+    estimate is defined likelihood will be de-weighted so as to give 
+    an uncertainty estimate that is a fraction (epsilon) of the 
     effective background.
 
 PARAMETERS
@@ -28,8 +28,8 @@ PARAMETERS
        factor needed to set the likelihood weights correctly.
 
     epsilon [float]
-       Epsilon parameter, this is the fractional systematic uncertaintiy,
-       i.e., the desired systematic uncertaintiy, expressed as a 
+       Epsilon parameter, this is the fractional systematic uncertainty,
+       i.e., the desired systematic uncertainty, expressed as a 
        fraction of the effective background.  Defaults to 0.03.
 
     (chatter) [integer]
@@ -85,7 +85,7 @@ EXAMPLES
     > gtalphabkg
     Text file with list of input files[] bkgeff_list.txt
     Output File[] alphabkg.fits
-    Epsilon parameter, fractional syst. uncertaintiy[0.03]
+    Epsilon parameter, fractional syst. uncertainty[0.03]
 
     That last example could be also run in the command line as follows:
 
@@ -103,3 +103,5 @@ SEE ALSO
     gteffbkg
     
     gtwtsmap
+
+ 
