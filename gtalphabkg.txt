@@ -1,12 +1,12 @@
 NAME
 
-    gtalphbkg - Computes relative contributions to likelihood weights 
+    gtalphabkg - Computes relative contributions to likelihood weights 
     from different analysis components
 
 
 USAGE
 
-    gtalphbkg inputs outfile epsilon
+    gtalphabkg inputs outfile epsilon
 
 
 DESCRIPTION
