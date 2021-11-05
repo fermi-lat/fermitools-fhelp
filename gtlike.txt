@@ -115,7 +115,8 @@ MODEL FITTING:
     are used. For example all variables are treated as bounded. No user
     interaction is allowed and only MIGRAD algorithm is implemented. For more
     information about MINUIT see
-    https://seal.web.cern.ch/seal/snapshot/work-packages/mathlibs/minuit/.
+    https://root.cern.ch/doc/master/classTMinuit.html or
+    https://root.cern.ch/download/minuit.pdf.
 
     NEWMINUIT is also an interface to the C++ version of MINUIT. This class
     implements an Optimizer by using MINUIT.  It uses only a few of MINUIT's
