@@ -364,9 +364,7 @@ EXAMPLES
 
     >gtsrcid cptPosError=0.01
 
-    There are several examples of how to run the tool in the analysis thread
-    (see http://fermi.gsfc.nasa.gov/ssc/data/analysis/scitools/src_ident.html)
-    only one is reproduced here:
+    Here is an example of how to run the tool:
 
     A catalog of LAT sources (for a simulated LAT sky) is compared to the
     Third EGRET Catalog (http://heasarc.gsfc.nasa.gov/docs/cgro/egret/3rd_EGRET_Cat.html).
