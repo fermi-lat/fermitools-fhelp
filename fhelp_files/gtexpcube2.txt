@@ -48,10 +48,9 @@ PARAMETERS
          source and the LAT normal), and photon category. Default is "CALDB".
 
      evtype [integer]
-       	  The evtype to be used in generating the background data. The
-       	  default is INDEF which will use the default in the input
-       	  file. This can be overridden by entering the desired event
-       	  type e.g. 3 for FRONT + BACK events.
+       	  The evtype to be used in generating the background data. Users 
+          should enter the desired event type to be consistent with 
+          previous analysis steps e.g. 3 for FRONT + BACK events.
 
      (edisp_bins) [integer]
           Number of extra bins to compute for energy dispersion purposes.
