@@ -69,12 +69,14 @@ DESCRIPTION
 
     The spatial and energy gridding (nlong, nlat, and nenergies
     parameters) for the Source Region must also be provided in
-    gtexpmap. Half-degree pixels are a nominal choice for gtexpmap,
+    gtexpmap. Half-degree pixels are a nominal choice for point source analysis,
     and that means nlong=120 and nlat=120 if 30 degrees radius was
     chosen for the srcrad parameter.  Smaller pixels should result in
     a more accurate evaluation of the diffuse source fluxes, but they
     will also make the exposure map calculation itself more time
     consuming, scaling roughly with the number of pixels in the map.
+    When working on extended sources, the pixel size of the exposure 
+    map must be small enough to sample the smallest extended source present in the model.
     The energy range of the exposure map is determined by the
     selections made with gtselect to produce the filtered event file,
     and that energy range is divided into a number of logarithmically
