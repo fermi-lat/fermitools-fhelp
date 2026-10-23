@@ -69,6 +69,12 @@ They are probably read with HEASoft `fhelp` or through the FSSC web pages
 - **Installed files:** `share/fermitools/help/<tool>.txt`.
 - **C++ API, applications, Python, par files:** none.
 
+### Environment variables
+
+None: the package has no code. Variables set by conda activation are
+described under "Runtime environment" in ScienceTools'
+`docs/architecture/README.md`.
+
 ### Coverage against built tools
 
 Built tools are taken from `add_executable(gt*)` in `src/*/CMakeLists.txt`
@@ -103,7 +109,9 @@ and the console entry points in `recipe/meta.yaml`, as of ScienceTools
   `install(DIRECTORY fhelp_files/ DESTINATION ${FERMI_INSTALL_HELPDIR})`.
   `FERMI_INSTALL_HELPDIR` is defined only by the top-level ScienceTools
   `CMakeLists.txt`, so the package cannot be configured on its own.
-- **Tests:** none. `azure-pipelines.yml` is a legacy per-repo Azure
+- **Tests:** none. The project harness `recipe/tests/ST-unit-test` (see
+  "Testing" in ScienceTools' `docs/architecture/README.md`) has no check
+  for this package, and no reference data exists. `azure-pipelines.yml` is a legacy per-repo Azure
   pipeline template (build/test/launch stages via `fermi-lat/ci`). It does
   not validate the help content.
 
