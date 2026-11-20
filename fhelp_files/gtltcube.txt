@@ -135,6 +135,16 @@ PARAMETERS
     The minimum zenith angle over which the livetimes are integrated.
     Value must be in the range 0-180.
 
+    (nthreads = 1) [integer]
+    Number of threads used to compute the livetime cube. The sky
+    pixels are divided among the threads. The default is 1, a single
+    thread, whatever the OMP_NUM_THREADS environment variable says. A
+    value of 0 uses the OpenMP default: OMP_NUM_THREADS if it is set,
+    otherwise every core. The output is identical for any number of
+    threads. On a shared machine, such as a batch node, ask for no more
+    threads than the cores you have been given. This is a hidden
+    parameter.
+
     (chatter = 2)
     This parameter fixes the output verbosity: no screen output (0),
     nominal screen output (2), maximum verbosity (4). The default value is
